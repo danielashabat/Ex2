@@ -26,7 +26,7 @@ char char_decryptor(char letter, int key) {
 		return ('0' + (letter - '0' - key) % 10);
 	}
 	else {
-		
+		return letter;
 	}
 }
 
