@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
 	FILE* input_file=NULL;
 	int thread_size = 0;
 	HANDLE* threads_handles = NULL; //pointer to threads handles array
-	DWORD *thread_ids; ////pointer to threads ids array
+	DWORD *thread_ids =NULL; ////pointer to threads ids array
 
 	////check if there 4 arguments
 	//if (argc < 4) {
@@ -28,12 +28,15 @@ int main(int argc, char* argv[]) {
 	//	printf("ERROR:too many arguments!");
 	//	return EXIT_FAILURE;
 	//}
+
 	err = fopen_s(&input_file, argv[1], "r"); //open input file 
 	int key = argv[2];
 	int num_threads = argv[3];
 
 	thread_size= text_size(input_file)/num_threads;//counting chars in input text and dividing it in the number of threads
-
+	threads_handles = (HANDLE*)malloc(num_threads * sizeof(HANDLE));	
+	threads_handles = (DWORD*)malloc(num_threads * sizeof(DWORD));
+	printf("hello");
 
 	if (!err && input_file != NULL) {
 		fclose(input_file);
