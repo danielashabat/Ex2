@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h> 
+#include <string.h>
 
 int is_capital_letter(char letter) {
 	if (('A' <= letter) && (letter <= 'Z')) return 1;
@@ -30,3 +31,11 @@ char char_decryptor(char letter, int key) {
 	}
 }
 
+//this function decryptes the string with the given 'key' and change the string the the decrypted string.
+void string_decryptor(char* str, int key) {
+	for (int i = 0; str[i] != '\0'; i++)
+	{
+		str[i] = char_decryptor(str[i], key);
+	}
+
+}
