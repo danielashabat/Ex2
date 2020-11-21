@@ -32,8 +32,8 @@ int main(int argc, char* argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	int key = (int )argv[2];
-	int num_threads =(int)argv[3];
+	int key = atoi(argv[2]);
+	int num_threads =atoi(argv[3]);
 
 	h_input_file = CreateFile(argv[1],// file name 
 		GENERIC_READ,          // open for reading 
@@ -68,8 +68,8 @@ int main(int argc, char* argv[]) {
 	}
 
 
-	threads_handles = (HANDLE*)malloc(num_threads * sizeof(HANDLE));
-	
+	threads_handles = (HANDLE*)malloc(sizeof(HANDLE)*num_threads);
+
 	if (threads_handles == NULL) {
 		printf("ERROR: allocation failed!\n");
 			return 1;
@@ -82,45 +82,45 @@ int main(int argc, char* argv[]) {
 	}
 
 
-	//for (i = 0; i < num_threads; i++)
-	//{
-	//	threads_handles[i] = CreateThread(/////need to handle with this warning!!
-	//		NULL,                   // default security attributes
-	//		0,                    // use default stack size  
-	//		decryptor_thread,       // thread function name
-	//		NULL,          // argument to thread function 
-	//		0,                      // use default creation flags 
-	//		&thread_ids[i]);   // returns the thread identifie
+	for (i = 0; i < num_threads; i++)
+	{
+		*(threads_handles+i) = CreateThread(/////need to handle with this warning!!
+			NULL,                   // default security attributes
+			0,                    // use default stack size  
+			decryptor_thread,       // thread function name
+			NULL,          // argument to thread function 
+			0,                      // use default creation flags 
+			&thread_ids[i]);   // returns the thread identifie
 
 
-	//// Check the return value for success.
-	//// If CreateThread fails, terminate execution. 
-	//// This will automatically clean up threads and memory. 
+	// Check the return value for success.
+	// If CreateThread fails, terminate execution. 
+	// This will automatically clean up threads and memory. 
 
-	//	if (threads_handles[i] == NULL)
-	//	{
-	//		printf("create thread failed\n");
-	//		ExitProcess(3);
-	//	}
-	//}// End of main thread creation loop.
+		if (*(threads_handles+i) == NULL)
+		{
+			printf("create thread failed\n");
+			ExitProcess(3);
+		}
+	}// End of main thread creation loop.
 
 
 
-	// //Close thread handles
-	//for (i = 0; i < num_threads; i++)
-	//{
-	//	ret_val = CloseHandle(threads_handles[i]);
-	//	if (false == ret_val)
-	//	{
-	//		printf("Error when closing\n");
-	//		return 1;
-	//	}
-	//}
+	 //Close thread handles
+	for (i = 0; i < num_threads; i++)
+	{
+		ret_val = CloseHandle(*(threads_handles+i));
+		if (false == ret_val)
+		{
+			printf("Error when closing\n");
+			return 1;
+		}
+	}
 
 
 
 	free(threads_handles);
-	thread_ids;
+	free(thread_ids);
 	return 0;
 }
 

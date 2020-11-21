@@ -16,7 +16,7 @@ int is_char_digit(char letter) {
 
 
 
-char char_decryptor(char letter, int key) {
+char char_encryptor(char letter, int key) {
 
 	if (is_lower_case(letter)) {
 		return ('a' + (letter - 'a' + key) % 26);
