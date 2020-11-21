@@ -36,7 +36,6 @@ int main(int argc, char* argv[]) {
 	thread_size= text_size(input_file)/num_threads;//counting chars in input text and dividing it in the number of threads
 	threads_handles = (HANDLE*)malloc(num_threads * sizeof(HANDLE));	
 	threads_handles = (DWORD*)malloc(num_threads * sizeof(DWORD));
-	printf("hello");
 
 	if (!err && input_file != NULL) {
 		fclose(input_file);
