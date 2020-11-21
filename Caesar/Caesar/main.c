@@ -1,22 +1,48 @@
 #include <stdio.h>
 #include <stdlib.h> 
-#include <assert.h>
+#include <windows.h>
 
-int main(int argc, char* argv[]) {
+int text_size(FILE* fp) {
+	int f_size;
 
-	char expected_v = char_decryptor('y',3);
-	assert(expected_v == 'v');
-
-	char expected_T = char_decryptor('Y', 5);
-	assert(expected_T == 'T');
-
-	int is_one = is_char_digit('6');
-	assert(is_one == 1);
-	int is_zero = is_lower_case('6');
-	assert(is_zero == 0);
-
-	char expected_4 = char_decryptor('6', 2);
-	assert(expected_4 == '4' && ("my expected is %c"));
-
-	return 0;
+	fseek(fp, 0, SEEK_END);
+	f_size = ftell(fp);
+	printf("text size: size=%ld", (unsigned long)f_size);
+	return f_size;
 }
+
+//command line: caesar.exe, input_file, key, number of threads
+int main(int argc, char* argv[]) {
+	errno_t err;
+	FILE* input_file=NULL;
+	int thread_size = 0;
+	HANDLE* threads_handles = NULL; //pointer to threads handles array
+	DWORD *thread_ids =NULL; ////pointer to threads ids array
+
+	////check if there 4 arguments
+	//if (argc < 4) {
+	//	printf("ERROR:not enough arguments!");
+	//	return EXIT_FAILURE;
+	//}
+	//if (argc > 4) {
+	//	printf("ERROR:too many arguments!");
+	//	return EXIT_FAILURE;
+	//}
+
+	err = fopen_s(&input_file, argv[1], "r"); //open input file 
+	int key = argv[2];
+	int num_threads = argv[3];
+
+	thread_size= text_size(input_file)/num_threads;//counting chars in input text and dividing it in the number of threads
+	threads_handles = (HANDLE*)malloc(num_threads * sizeof(HANDLE));	
+	threads_handles = (DWORD*)malloc(num_threads * sizeof(DWORD));
+
+	if (!err && input_file != NULL) {
+		fclose(input_file);
+	}
+	return 0;
+	
+}
+
+
+//19
