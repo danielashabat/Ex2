@@ -2,6 +2,11 @@
 #ifndef	DECRYPTOR_H
 #define DECRYPTOR_H
 
+// Includes --------------------------------------------------------------------
+
+
+// Function Declarations -------------------------------------------------------
+
 
 int is_capital_letter(char letter);
 int is_lower_case(char letter);
