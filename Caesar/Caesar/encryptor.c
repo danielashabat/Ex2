@@ -1,20 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h> 
-
-int is_capital_letter(char letter) {
-	if (('A' <= letter) && (letter <= 'Z')) return 1;
-	else return 0;
-}
-int is_lower_case(char letter) {
-	if (('a' <= letter) && (letter <= 'z')) return 1;
-	else return 0;
-}
-int is_char_digit(char letter) {
-	if (('0' <= letter) && (letter <= '9')) return 1;
-	else return 0;
-}
-
-
+#include "decryptor.h"
 
 char char_encryptor(char letter, int key) {
 

@@ -23,7 +23,7 @@ void Thread_Function(char* file_name_to_read, char* file_name_to_write, LONG off
 	//every thread will get the offset from the begining of the file. 
 	SetFilePointer(hfile_to_read, offset, MYNULL, FILE_BEGIN);
 	// read from the given number of file that given from the pointer 
-	bErrorFlag = ReadFile(hfile_to_read, number_of_bytes_to_read, lpNumberOfBytesRead,data_from_file,MYNULL);
+//	bErrorFlag = ReadFile(hfile_to_read, number_of_bytes_to_read, lpNumberOfBytesRead,data_from_file,MYNULL);
 					
 
 

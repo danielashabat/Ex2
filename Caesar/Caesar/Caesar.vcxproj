@@ -125,7 +125,9 @@
   <ItemGroup>
     <ClCompile Include="decryptor.c" />
     <ClCompile Include="decryptor_thread.c" />
+    <ClCompile Include="encryptor.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="ThreadFunction.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="decryptor.h" />

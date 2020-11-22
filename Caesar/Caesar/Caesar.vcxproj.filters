@@ -24,6 +24,12 @@
     <ClCompile Include="decryptor_thread.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="encryptor.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadFunction.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="decryptor.h">
