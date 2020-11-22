@@ -31,6 +31,8 @@ ThreadData* CreateThreadData(int thread_index, //the thread index
 	char output_path[], //output file path
 	int key); // the key for the decryption/encryption
 
+int count_lines(HANDLE hfile);//this function counts the number of lines in the file
+
 // Implementation -------------------------------------------------------
 
 //command line: caesar.exe, input_file, key, number of threads
@@ -79,9 +81,9 @@ int main(int argc, char* argv[]) {
 		FILE_ATTRIBUTE_NORMAL, // normal file 
 		NULL);                 // no template 
 
-	input_file_size = GetFileSize(h_input_file, NULL);
-	//  move hFile file pointer to the size of input file  
-	dwPtr = SetFilePointer(h_output_file,input_file_size,NULL,FILE_BEGIN);
+
+	//  move output file pointer to the size of input file  
+	dwPtr = SetFilePointer(h_output_file, GetFileSize(h_input_file, NULL),NULL,FILE_BEGIN);
 
 	if (dwPtr == INVALID_SET_FILE_POINTER) // Test for failure
 	{
@@ -94,7 +96,7 @@ int main(int argc, char* argv[]) {
 	} // End of error handler 
 	SetEndOfFile(h_output_file);//setting the output size equal to the input file size
 
-	thread_size= input_file_size /num_threads;// dividing input text size in the number of threads 
+	thread_size= count_lines(h_input_file) /num_threads;// dividing input text lines in the number of threads 
 
 	threads_handles = (HANDLE*)malloc(sizeof(HANDLE)*num_threads);
 
@@ -113,7 +115,7 @@ int main(int argc, char* argv[]) {
 	for (i = 0; i < num_threads; i++)
 	{
 		ThreadData* data = CreateThreadData(i, thread_size, argv[1], "decrypted.txt", key);
-		printf("startpoint: %d, endpoint:%d\n", data->startpoint, data->endpoint);
+		printf("startline: %d, endline:%d\n", data->startpoint, data->endpoint);
 		if (data == NULL) {//check if the allocation failed
 			printf("data allocation failed\n");
 			ExitProcess(3);
@@ -194,4 +196,24 @@ ThreadData* CreateThreadData(int thread_index, //the thread index
 	ptr_to_thread_data->endpoint = thread_size *(thread_index+1)-1;
 	ptr_to_thread_data->key = key;
 	return ptr_to_thread_data;
+}
+
+int count_lines(HANDLE hfile) {
+	char char_buffer;
+	DWORD nBytesToRead = 1;
+	DWORD dwBytesRead = 0;
+	DWORD dwFileSize = GetFileSize(hfile, NULL);
+	BOOL bResult = FALSE;
+	int count_lines = 0;
+	int count_chars = 0;
+
+	while (count_chars< dwFileSize) {
+		bResult = ReadFile(hfile, &char_buffer, nBytesToRead, &dwBytesRead, NULL);
+		count_chars++;
+		if (char_buffer == '\n') {
+			count_lines++;
+		}
+	}
+	count_lines++;
+	return count_lines;
 }
