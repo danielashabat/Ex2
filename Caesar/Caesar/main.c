@@ -12,40 +12,66 @@
 
 
 // Defines --------------------------------------------------------------------
-#define MAX_PATH_LENGTH 200 //the maximun length of the input/output path
+
+/*if allocation failed exit program*/
+#define CHECK_IF_ALLOCATION_FAILED(RET_VAL) if (RET_VAL == NULL) {\
+	printf("memory allocation failed\n");\
+	exit(1);\
+}
+
+/*if closing handler failed exit program*/
+#define CHECK_IF_CLOSING_HANDLER_FAILED(RET_VAL) if (false == RET_VAL) {\
+	printf("Error when closing\n");\
+	return 1;\
+}
 
 // Structs --------------------------------------------------------------------
-// Sample custom data structure for threads to use.
+
+////the purpose of this struct is to hold the necessary arguments to 'ThreadFunction'
 typedef struct ThreadData {
-	char input_path[MAX_PATH_LENGTH];
-	char output_path[MAX_PATH_LENGTH];
-	int  startpoint;
-	int endpoint;
-	int key;
+	char input_path[MAX_PATH];// the path of the input file
+	char output_path[MAX_PATH];// the path of the output file
+	int  startline;//the statring line the thread need to decrypte/encrypte 
+	int endline;//the ending line the thread need to decrypte/encrypte (include this line)
+	int key; // the key for the decryption/encryption
 } ThreadData;
 
 // Function Declarations -------------------------------------------------------
+
+//the purpose of this function is to create data for passsing the necessary arguments to 'ThreadFunction'
+//it returns pointer to ThreadData that contains the relevant data per thread by it's index thread.
+//if the function fails it returns NULL
 ThreadData* CreateThreadData(int thread_index, //the thread index
 	int thread_size,  // the size of bytes the thread need to read from input file 
 	char input_path[],//input file path
 	char output_path[], //output file path
 	int key); // the key for the decryption/encryption
 
-int count_lines(HANDLE hfile);//this function counts the number of lines in the file
+//this function counts the number of lines in the file
+//returns an int that represent the number of lines in the given file
+int count_lines(HANDLE hfile);//handler to file
+
+/*this function setting the file size to new_size(in bytes)
+the function return 'INVALID_SET_FILE_POINTER' if it fails, and '0' otherwise*/
+DWORD set_file_size(HANDLE hfile,//handler to the file 
+					DWORD new_size);// the new size of the file 
+
+/*this function close all the handles that opens in the main
+return 0 if all the handles closed, return 1 otherwise*/
+int close_all_handles(HANDLE hInputFile, HANDLE hOutputFile, HANDLE threads_handles[], int num_threads);
 
 // Implementation -------------------------------------------------------
 
 //command line: caesar.exe, input_file, key, number of threads
 int main(int argc, char* argv[]) {
 	int i = 0;
-	FILE* input_file=NULL;
 	int thread_size = 0;
-	char input_path[MAX_PATH_LENGTH];
-	char output_path[MAX_PATH_LENGTH];
+	char input_path[MAX_PATH];
+	char output_path[MAX_PATH];
 	HANDLE h_input_file;
 	HANDLE h_output_file;
 	DWORD input_file_size = 0;
-	DWORD dwPtr = 0;
+	DWORD dw_ret = 0;
 	HANDLE* threads_handles = NULL; //pointer to threads handles array
 	DWORD *thread_ids =NULL; ////pointer to threads ids array
 	BOOL ret_val;
@@ -60,12 +86,12 @@ int main(int argc, char* argv[]) {
 		return EXIT_FAILURE;
 	}
 	
-	strcpy_s(input_path,MAX_PATH_LENGTH,argv[1]);
-	strcpy_s(output_path, MAX_PATH_LENGTH, "decrypted.txt");
+	strcpy_s(input_path,MAX_PATH,argv[1]);
+	strcpy_s(output_path, MAX_PATH, "decrypted.txt");
 	int key = atoi(argv[2]);
 	int num_threads =atoi(argv[3]);
 
-	h_input_file = CreateFile(input_path,// file name 
+	h_input_file = CreateFileA(input_path,// file name 
 		GENERIC_READ,          // open for reading 
 		FILE_SHARE_READ,       // open sharing for reading only 
 		NULL,                  // default security 
@@ -73,7 +99,8 @@ int main(int argc, char* argv[]) {
 		FILE_ATTRIBUTE_NORMAL, // normal file 
 		NULL);                 // no template 
 
-	h_output_file = CreateFile(output_path,// file name 
+
+	h_output_file = CreateFileA(output_path,// file name 
 		GENERIC_WRITE,          // open for reading 
 		FILE_SHARE_WRITE,      // open sharing for writing only 
 		NULL,                  // default security 
@@ -82,44 +109,22 @@ int main(int argc, char* argv[]) {
 		NULL);                 // no template 
 
 
-	//  move output file pointer to the size of input file  
-	dwPtr = SetFilePointer(h_output_file, GetFileSize(h_input_file, NULL),NULL,FILE_BEGIN);
-
-	if (dwPtr == INVALID_SET_FILE_POINTER) // Test for failure
-	{
-		// Obtain the error code. 
-		DWORD dwError = GetLastError();
-
-		// Deal with failure 
-		// . . . 
-
-	} // End of error handler 
-	SetEndOfFile(h_output_file);//setting the output size equal to the input file size
-
+	dw_ret= set_file_size(h_output_file, GetFileSize(h_input_file, NULL));
+	/// check for failure
 	thread_size= count_lines(h_input_file) /num_threads;// dividing input text lines in the number of threads 
 
-	threads_handles = (HANDLE*)malloc(sizeof(HANDLE)*num_threads);
+	threads_handles = (HANDLE*)malloc(sizeof(HANDLE)*num_threads);//creating array of handles in the size of num_threads
+	CHECK_IF_ALLOCATION_FAILED(threads_handles);
 
-	if (threads_handles == NULL) {
-		printf("ERROR: allocation failed!\n");
-			return 1;
-	}
-
-	thread_ids = (DWORD*)malloc(num_threads * sizeof(DWORD));
-	if (thread_ids == NULL) {
-		printf("ERROR: allocation failed!\n");
-		return 1;
-	}
+	thread_ids = (DWORD*)malloc(num_threads * sizeof(DWORD));// creating array of DWORD in the size of num_threads
+	CHECK_IF_ALLOCATION_FAILED(thread_ids)
 
 
 	for (i = 0; i < num_threads; i++)
 	{
 		ThreadData* data = CreateThreadData(i, thread_size, argv[1], "decrypted.txt", key);
-		printf("startline: %d, endline:%d\n", data->startpoint, data->endpoint);
-		if (data == NULL) {//check if the allocation failed
-			printf("data allocation failed\n");
-			ExitProcess(3);
-		}
+		printf("startline: %d, endline:%d\n", data->startline, data->endline);
+		CHECK_IF_ALLOCATION_FAILED(data);
 
 		*(threads_handles+i) = CreateThread(/////need to handle with this warning!!
 			NULL,                   // default security attributes
@@ -141,35 +146,11 @@ int main(int argc, char* argv[]) {
 		}
 	}// End of main thread creation loop.
 
-
-
-	 //Close thread handles
-	for (i = 0; i < num_threads; i++)
-	{
-		ret_val = CloseHandle(*(threads_handles+i));
-		if (false == ret_val)
-		{
-			printf("Error when closing\n");
-			return 1;
-		}
-	}
-
-	//close input file handle
-	ret_val = CloseHandle(h_input_file);
-	if (false == ret_val)
-	{
-		printf("Error when closing\n");
+	ret_val=close_all_handles(h_input_file, h_output_file, threads_handles, num_threads);//closing all the handles
+	if (ret_val == 1) {
+		printf("ERROR:closing one of the handles handles failed!\n");
 		return 1;
 	}
-	//close output file handle
-	ret_val = CloseHandle(h_output_file);
-	if (false == ret_val)
-	{
-		printf("Error when closing\n");
-		return 1;
-	}
-
-
 
 	free(threads_handles);
 	free(thread_ids);
@@ -190,10 +171,10 @@ ThreadData* CreateThreadData(int thread_index, //the thread index
 		printf("ERROR: allocation failed!\n");
 		return NULL;
 	}
-	strcpy_s(ptr_to_thread_data->input_path, MAX_PATH_LENGTH, input_path);
-	strcpy_s(ptr_to_thread_data->output_path, MAX_PATH_LENGTH, output_path);
-	ptr_to_thread_data->startpoint = (thread_size * thread_index);
-	ptr_to_thread_data->endpoint = thread_size *(thread_index+1)-1;
+	strcpy_s(ptr_to_thread_data->input_path, MAX_PATH, input_path);
+	strcpy_s(ptr_to_thread_data->output_path, MAX_PATH, output_path);
+	ptr_to_thread_data->startline = (thread_size * thread_index);
+	ptr_to_thread_data->endline = thread_size *(thread_index+1)-1;
 	ptr_to_thread_data->key = key;
 	return ptr_to_thread_data;
 }
@@ -205,9 +186,9 @@ int count_lines(HANDLE hfile) {
 	DWORD dwFileSize = GetFileSize(hfile, NULL);
 	BOOL bResult = FALSE;
 	int count_lines = 0;
-	int count_chars = 0;
+	unsigned int count_chars = 0;
 
-	while (count_chars< dwFileSize) {
+	while (count_chars < dwFileSize) {
 		bResult = ReadFile(hfile, &char_buffer, nBytesToRead, &dwBytesRead, NULL);
 		count_chars++;
 		if (char_buffer == '\n') {
@@ -216,4 +197,38 @@ int count_lines(HANDLE hfile) {
 	}
 	count_lines++;
 	return count_lines;
+}
+
+
+
+
+DWORD set_file_size(HANDLE hfile, DWORD new_size) {
+	//  move output file pointer to the size of input file  
+	DWORD dwPtr = SetFilePointer(hfile, new_size, NULL, FILE_BEGIN);
+
+	if (dwPtr == INVALID_SET_FILE_POINTER) // Test for failure
+	{
+		return INVALID_SET_FILE_POINTER;
+	} // End of error handler 
+	SetEndOfFile(hfile);//setting the output size equal to the input file size
+	return 0;//the function successed
+}
+
+int close_all_handles(HANDLE hInputFile, HANDLE hOutputFile, HANDLE threads_handles[], int num_threads) {
+	BOOL ret_val;
+	//Close thread handles
+	for (int i = 0; i < num_threads; i++)
+	{
+		ret_val = CloseHandle(*(threads_handles + i));
+		CHECK_IF_CLOSING_HANDLER_FAILED(ret_val);
+	}
+
+	//close input file handle
+	ret_val = CloseHandle(hInputFile);
+	CHECK_IF_CLOSING_HANDLER_FAILED(ret_val);
+
+	//close output file handle
+	ret_val = CloseHandle(hOutputFile);
+	CHECK_IF_CLOSING_HANDLER_FAILED(ret_val);
+	return 0;//returns 0 if all the handles closed
 }
