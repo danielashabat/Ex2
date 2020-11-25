@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <Windows.h>
 
-
+//DEFINE -------------------------------------------------------
 
 #define MYNULL ((void*)0)
 //void check_ReadFile_WriteFile_errors(BOOL bError, DWORD number_of_bytes_to_read_or_write, LPDWORD lpNumberOfBytesRead_or_Written, char* file_name);
@@ -25,71 +25,7 @@ typedef struct ThreadData {
 } ThreadData;
 
 
-int main() {
-	char file_name_to_read[MAX_PATH];
-	char file_name_to_write[MAX_PATH];
-
-	HANDLE h_output_file;
-	int dw_ret;
-	strcpy_s(file_name_to_read, sizeof(file_name_to_read), "plaintext_example1.txt");
-	strcpy_s(file_name_to_write, sizeof(file_name_to_write), "decrypt.txt");
-	h_output_file = CreateFileA(file_name_to_write,// file name 
-		GENERIC_WRITE,          // open for reading 
-		FILE_SHARE_WRITE,      // open sharing for writing only 
-		NULL,                  // default security 
-		CREATE_ALWAYS,         // always creats a new file, if the file exists it overwrites it 
-		FILE_ATTRIBUTE_NORMAL, // normal file 
-		NULL);                 // no template 
-	dw_ret = set_file_size(h_output_file, 89);
-	CloseHandle(h_output_file);
-
-}
-
-
-void get_data_from_file_in_specipfic_lines(char* file_name_to_read, char* data_from_file, LONG offset, DWORD number_of_bytes_to_read) {
-
-	HANDLE hfile_to_read;
-	BOOL bErrorFlag = FALSE;
-	DWORD lpNumberOfBytesRead;
-	int dw_pointer;
-
-	//Create handle to output file 
-	hfile_to_read = CreateFileA((LPCSTR)file_name_to_read, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_SHARE_READ, MYNULL);
-	check_file_handle(hfile_to_read, file_name_to_read);
-
-	// Set pointer to the place we want to start reading.
-	//every thread will get the offset from the begining of the file. 
-
-	dw_pointer = SetFilePointer(hfile_to_read, offset, MYNULL, FILE_BEGIN);
-	// read from the given number of file that given from the pointer 
-	bErrorFlag = ReadFile(hfile_to_read, data_from_file, number_of_bytes_to_read, &lpNumberOfBytesRead, MYNULL);
-	check_ReadFile_WriteFile(bErrorFlag, number_of_bytes_to_read, lpNumberOfBytesRead);
-
-	CloseHandle(hfile_to_read);
-
-
-}
-
-void write_to_specific_lines(char* file_name_to_write, char* data_to_file, LONG offset, DWORD number_of_bytes_to_read) {
-	HANDLE hfile_to_write;
-	BOOL bErrorFlag = FALSE;
-	DWORD lpNumberOfBytesWritten;
-
-	//Create HANDLE for input file 
-	hfile_to_write = CreateFileA((LPCSTR)file_name_to_write, GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_SHARE_WRITE, MYNULL);
-	check_file_handle(hfile_to_write, file_name_to_write);
-
-	// Set pointer to the place we want to start reading.
-	//every thread will get the offset from the begining of the file. 
-	SetFilePointer(hfile_to_write, offset, MYNULL, FILE_BEGIN);
-	// read from the given number of file that given from the pointer 
-	bErrorFlag = WriteFile(hfile_to_write, data_to_file, number_of_bytes_to_read, &lpNumberOfBytesWritten, MYNULL);
-	check_ReadFile_WriteFile(bErrorFlag, number_of_bytes_to_read, lpNumberOfBytesWritten);
-	//check_ReadFile_WriteFile_errors(bErrorFlag,number_of_bytes_to_read,lpNumberOfBytesWritten,file_name_to_write);
-	CloseHandle(hfile_to_write);
-
-}
-
+//THREAD FUNCTIONS -----------------------------------------------
 
 DWORD WINAPI encrypt_thread(LPVOID lpParam) {
 	//Initalize
@@ -165,20 +101,56 @@ DWORD WINAPI decrypt_thread(LPVOID lpParam) {
 
 
 }
-DWORD set_file_size(HANDLE hfile, DWORD new_size) {
-	//  move output file pointer to the size of input file  
-	DWORD dwPtr = SetFilePointer(hfile, new_size, NULL, FILE_BEGIN);
 
-	if (dwPtr == INVALID_SET_FILE_POINTER) // Test for failure
-	{
-		return INVALID_SET_FILE_POINTER;
-	} // End of error handler 
-	SetEndOfFile(hfile);//setting the output size equal to the input file size
-	return 0;//the function successed
+
+//READ AND WRITE FUNCTIONS -----------------------------------------
+
+void get_data_from_file_in_specipfic_lines(char* file_name_to_read, char* data_from_file, LONG offset, DWORD number_of_bytes_to_read) {
+
+	HANDLE hfile_to_read;
+	BOOL bErrorFlag = FALSE;
+	DWORD lpNumberOfBytesRead;
+	int dw_pointer;
+
+	//Create handle to output file 
+	hfile_to_read = CreateFileA((LPCSTR)file_name_to_read, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_SHARE_READ, MYNULL);
+	check_file_handle(hfile_to_read, file_name_to_read);
+
+	// Set pointer to the place we want to start reading.
+	//every thread will get the offset from the begining of the file. 
+
+	dw_pointer = SetFilePointer(hfile_to_read, offset, MYNULL, FILE_BEGIN);
+	// read from the given number of file that given from the pointer 
+	bErrorFlag = ReadFile(hfile_to_read, data_from_file, number_of_bytes_to_read, &lpNumberOfBytesRead, MYNULL);
+	check_ReadFile_WriteFile(bErrorFlag, number_of_bytes_to_read, lpNumberOfBytesRead);
+
+	CloseHandle(hfile_to_read);
+
 
 }
 
-//Checking Functions ----------------------------------------------------------------------------
+void write_to_specific_lines(char* file_name_to_write, char* data_to_file, LONG offset, DWORD number_of_bytes_to_read) {
+	HANDLE hfile_to_write;
+	BOOL bErrorFlag = FALSE;
+	DWORD lpNumberOfBytesWritten;
+
+	//Create HANDLE for input file 
+	hfile_to_write = CreateFileA((LPCSTR)file_name_to_write, GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_SHARE_WRITE, MYNULL);
+	check_file_handle(hfile_to_write, file_name_to_write);
+
+	// Set pointer to the place we want to start reading.
+	//every thread will get the offset from the begining of the file. 
+	SetFilePointer(hfile_to_write, offset, MYNULL, FILE_BEGIN);
+	// read from the given number of file that given from the pointer 
+	bErrorFlag = WriteFile(hfile_to_write, data_to_file, number_of_bytes_to_read, &lpNumberOfBytesWritten, MYNULL);
+	check_ReadFile_WriteFile(bErrorFlag, number_of_bytes_to_read, lpNumberOfBytesWritten);
+	//check_ReadFile_WriteFile_errors(bErrorFlag,number_of_bytes_to_read,lpNumberOfBytesWritten,file_name_to_write);
+	CloseHandle(hfile_to_write);
+
+}
+
+
+//CHECKING FUNCTIONS ----------------------------------------------------------------------------
 
 void check_file_handle(HANDLE h_file, char* file_name) {
 	if (h_file == INVALID_HANDLE_VALUE)
