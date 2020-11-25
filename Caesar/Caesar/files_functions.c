@@ -34,12 +34,16 @@ int count_lines(HANDLE hfile) {
 
 
 DWORD set_file_size(HANDLE hfile, DWORD new_size) {
+	if (new_size == INVALID_FILE_SIZE) {//check if new_size is valid
+		return 1;
+	}
+
 	//  move output file pointer to the size of input file  
 	DWORD dwPtr = SetFilePointer(hfile, new_size, NULL, FILE_BEGIN);
 
 	if (dwPtr == INVALID_SET_FILE_POINTER) // Test for failure
 	{
-		return INVALID_SET_FILE_POINTER;
+		return 1;
 	} // End of error handler 
 	SetEndOfFile(hfile);//setting the output size equal to the input file size
 	return 0;//the function successed
@@ -64,30 +68,38 @@ int close_all_handles(HANDLE hInputFile, HANDLE hOutputFile, HANDLE threads_hand
 	return 0;//returns 0 if all the handles closed
 }
 
-DWORD adding_lines_to_file_pointer(HANDLE hfile, int lines_per_thread,int file_pointer) {
+
+DWORD get_start_point() {
+	return file_pointer;
+}
+
+
+
+
+DWORD get_end_point(HANDLE hfile, int lines_per_thread) {
 	char char_buffer;
 	DWORD nBytesToRead = 1;
 	DWORD dwBytesRead = 0;
 	BOOL bResult = FALSE;
 	int count_lines = 0;
-	printf("file_pointer:%d\n", file_pointer);
-	//  move  file pointer to the begining  
-	DWORD dwPtr = SetFilePointer(hfile,file_pointer, NULL, FILE_BEGIN);
 
-	if (dwPtr == INVALID_SET_FILE_POINTER) // Test for failure
-	{
-		return INVALID_SET_FILE_POINTER;
-	} // End of error handler 
+	if (file_pointer == 0) {
+		//  move  file pointer to the begining  
+		DWORD dwPtr = SetFilePointer(hfile, file_pointer, NULL, FILE_BEGIN);
 
-	while (!bResult || (dwBytesRead != 0) && (count_lines < lines_per_thread)) {//looping until it's end-of-file or it read all the lined needed
+		if (dwPtr == INVALID_SET_FILE_POINTER) // Test for failure
+		{
+			return INVALID_SET_FILE_POINTER;
+		} // End of error handler 
+	}
+	while (!bResult || (dwBytesRead != 0) && (count_lines < lines_per_thread)) {//looping until it's end-of-file or it read all the lines needed
 		bResult = ReadFile(hfile, &char_buffer, nBytesToRead, &dwBytesRead, NULL);
 		file_pointer++;
 		if (char_buffer == '\n') {
 			count_lines++;
 		}
 	}
-	file_pointer = file_pointer - 1;//end loop with extra byte 
-	
-	return file_pointer;
+	 
+	return (file_pointer -1);//end loop with extra byte
 
 }

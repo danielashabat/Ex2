@@ -6,7 +6,7 @@
 
 /*if closing handler failed exit program*/
 #define CHECK_IF_CLOSING_HANDLE_FAILED(RET_VAL) if (false == RET_VAL) {\
-	printf("Error when closing\n");\
+	printf("Error when closing handle\n");\
 	return 1;\
 }
 
@@ -27,11 +27,16 @@ DWORD set_file_size(HANDLE hfile,//handler to the file
 return 0 if all the handles closed, return 1 otherwise*/
 int close_all_handles(HANDLE hInputFile, HANDLE hOutputFile, HANDLE threads_handles[], int num_threads);
 
-/*move pointer by number of lines 'lines_per_thread'*/
-DWORD adding_lines_to_file_pointer(HANDLE hfile, int lines_per_thread,int file_pointer);
+//returns the starting point for thread (by bytes)
+DWORD get_start_point();
+
+/*move pointer by number of lines 'lines_per_thread' and returns the end point for thread*/
+DWORD get_end_point(HANDLE hfile, //handler to input file 
+					int lines_per_thread);//the number of lines every thread need to read
 
 
-
+// static vars Declarations -------------------------------------------------------
+static DWORD file_pointer = 0;
 
 #endif
 #pragma once

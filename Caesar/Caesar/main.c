@@ -17,7 +17,7 @@
 /*if allocation failed exit program*/
 #define CHECK_IF_ALLOCATION_FAILED(RET_VAL) if (RET_VAL == NULL) {\
 	printf("memory allocation failed\n");\
-	exit(1);\
+	return 1;\
 }
 
 
@@ -27,8 +27,8 @@
 typedef struct ThreadData {
 	char input_path[MAX_PATH];// the path of the input file
 	char output_path[MAX_PATH];// the path of the output file
-	int  start_point;//the statring point (by bytes) the thread need to decrypte/encrypte 
-	int end_point;//the ending point (by bytes) the thread need to decrypte/encrypte (include this bytes)
+	DWORD  start_point;//the statring point (by bytes) the thread need to decrypte/encrypte 
+	DWORD end_point;//the ending point (by bytes) the thread need to decrypte/encrypte (include this bytes)
 	int key; // the key for the decryption/encryption
 } ThreadData;
 
@@ -39,12 +39,11 @@ typedef struct ThreadData {
 //the purpose of this function is to create data for passsing the necessary arguments to 'ThreadFunction'
 //it returns pointer to ThreadData that contains the relevant data per thread by it's index thread.
 //if the function fails it returns NULL
-ThreadData* CreateThreadData(int thread_index, //the thread index
-	int lines_per_thread,  // the number of lines the thread need to read/write to file  
+ThreadData* CreateThreadData(int start_point,////the statring point (by bytes) the thread need to decrypte/encrypte
+	int end_point,//the ending point (by bytes) the thread need to decrypte/encrypte (include this bytes)
 	char input_path[],//input file path
 	char output_path[], //output file path
-	int key,// the key for the decryption/encryption
-	HANDLE h_input_file); //handle to input file
+	int key);// the key for the decryption/encryption
 
 // Implementation -------------------------------------------------------
 
@@ -56,11 +55,11 @@ int main(int argc, char* argv[]) {
 	char output_path[MAX_PATH];
 	HANDLE h_input_file;
 	HANDLE h_output_file;
-	DWORD input_file_size = 0;
 	DWORD dw_ret = 0;
 	HANDLE* threads_handles = NULL; //pointer to threads handles array
 	DWORD *thread_ids =NULL; ////pointer to threads ids array
 	BOOL ret_val;
+	DWORD start_point = 0, end_point = 0;
 	
 
 	//check if there 4 arguments
@@ -97,7 +96,11 @@ int main(int argc, char* argv[]) {
 
 
 	dw_ret= set_file_size(h_output_file, GetFileSize(h_input_file, NULL));
-	/// check for failure
+	if (dw_ret == 1 ){
+		printf("ERROR:%d  set_file_size failed\n", GetLastError());
+		return 1;
+	}
+
 	lines_per_thread= count_lines(h_input_file) /num_threads;// dividing all the lines in the file with the number of threads 
 
 	threads_handles = (HANDLE*)malloc(sizeof(HANDLE)*num_threads);//creating array of handles in the size of num_threads
@@ -109,8 +112,15 @@ int main(int argc, char* argv[]) {
 
 	for (i = 0; i < num_threads; i++)
 	{
-		ThreadData* data = CreateThreadData(i, lines_per_thread, input_path, output_path, key,h_input_file);
-		printf( "startpoint: %d, endpoint:%d\n", data->start_point, data->end_point);
+		start_point = get_start_point();
+		
+		if (i < (num_threads-1))//check if it's not the last thread
+			end_point = get_end_point(h_input_file, lines_per_thread);
+		else
+			end_point = GetFileSize(h_input_file, NULL);//the last thread reads until EOF
+
+		ThreadData* data = CreateThreadData(start_point, end_point, input_path, output_path, key);
+		printf( "startpoint: %ld, endpoint:%ld\n", data->start_point, data->end_point);
 		CHECK_IF_ALLOCATION_FAILED(data);
 
 		*(threads_handles+i) = CreateThread(/////need to handle with this warning!!
@@ -128,10 +138,23 @@ int main(int argc, char* argv[]) {
 
 		if (*(threads_handles+i) == NULL)
 		{
-			printf("create thread failed\n");
-			ExitProcess(3);
+			printf("ERRROR: %d while attempt to create thread\n",	 GetLastError());
+			return 1;
 		}
 	}// End of main thread creation loop.
+
+	dw_ret = WaitForMultipleObjects(
+		num_threads,  // number of objects in array
+		threads_handles,     // array of objects
+		TRUE,       // wait for all objects to be signaled
+		5000);       // five-second wait
+
+	// check for failure 
+	if (dw_ret != WAIT_OBJECT_0) {
+		printf("ERROR:%d while waiting to threads to finish\n", GetLastError());
+		return 1;
+	
+	}
 
 	ret_val=close_all_handles(h_input_file, h_output_file, threads_handles, num_threads);//closing all the handles
 	if (ret_val == 1) {
@@ -146,14 +169,13 @@ int main(int argc, char* argv[]) {
 
 
 
-ThreadData* CreateThreadData(int thread_index, //the thread index
-							 int lines_per_thread,  // the number of lines the thread need to read/write to file  
+ThreadData* CreateThreadData(DWORD start_point,//
+							DWORD end_point,
 							 char input_path[],//input file path
 							char output_path[], //output file path
-							int key,// the key for the decryption/encryption
-							HANDLE h_input_file) //handle to input file
+							int key)// the key for the decryption/encryption
+				
 {
-	static int file_pointer=0;
 	ThreadData *ptr_to_thread_data = NULL;
 	ptr_to_thread_data = (ThreadData*)malloc(sizeof(ThreadData));
 	if (ptr_to_thread_data == NULL) {
@@ -162,11 +184,8 @@ ThreadData* CreateThreadData(int thread_index, //the thread index
 	}
 	strcpy_s(ptr_to_thread_data->input_path, MAX_PATH, input_path);
 	strcpy_s(ptr_to_thread_data->output_path, MAX_PATH, output_path);
-	ptr_to_thread_data->start_point = file_pointer;
-	file_pointer = adding_lines_to_file_pointer(h_input_file, lines_per_thread, file_pointer);
-	ptr_to_thread_data->end_point = file_pointer;
+	ptr_to_thread_data->start_point = start_point;
+	ptr_to_thread_data->end_point =end_point;
 	ptr_to_thread_data->key = key;
-
-	file_pointer++;//moving the file pointer by one byte for the next thread's starting point
 	return ptr_to_thread_data;
 }
