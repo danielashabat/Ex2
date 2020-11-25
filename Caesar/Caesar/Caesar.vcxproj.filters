@@ -21,13 +21,10 @@
     <ClCompile Include="decryptor.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="decryptor_thread.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="encryptor.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ThreadFunction.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="files_functions.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,7 +32,7 @@
     <ClInclude Include="decryptor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="decryptor_thread.h">
+    <ClInclude Include="files_functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
