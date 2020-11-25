@@ -6,10 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h> 
 #include <windows.h>
-#include "decryptor.h"
 #include "files_functions.h"
-#include "decryptor_thread.h"///removeeeeeeeeeeeeeeeee  this
-
+#include "ThreadFunction.c"///////change to header!!
 
 
 // Defines --------------------------------------------------------------------
