@@ -7,18 +7,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Caesar", "Caesar\Caesar.vcx
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
-		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0AA76D7F-3603-412B-89BB-96296DAC0119}.Debug|x64.ActiveCfg = Debug|x64
-		{0AA76D7F-3603-412B-89BB-96296DAC0119}.Debug|x64.Build.0 = Debug|x64
 		{0AA76D7F-3603-412B-89BB-96296DAC0119}.Debug|x86.ActiveCfg = Debug|Win32
 		{0AA76D7F-3603-412B-89BB-96296DAC0119}.Debug|x86.Build.0 = Debug|Win32
-		{0AA76D7F-3603-412B-89BB-96296DAC0119}.Release|x64.ActiveCfg = Release|x64
-		{0AA76D7F-3603-412B-89BB-96296DAC0119}.Release|x64.Build.0 = Release|x64
 		{0AA76D7F-3603-412B-89BB-96296DAC0119}.Release|x86.ActiveCfg = Release|Win32
 		{0AA76D7F-3603-412B-89BB-96296DAC0119}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection

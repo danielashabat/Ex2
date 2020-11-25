@@ -29,6 +29,7 @@ int main(int argc, char* argv[]) {
 	int lines_per_thread = 0;
 	char input_path[MAX_PATH];
 	char output_path[MAX_PATH];
+	int* thread_size;
 	HANDLE h_input_file;
 	HANDLE h_output_file;
 	DWORD dw_ret = 0;
@@ -86,24 +87,17 @@ int main(int argc, char* argv[]) {
 	thread_ids = (DWORD*)malloc(num_threads * sizeof(DWORD));// creating array of DWORD in the size of num_threads
 	CHECK_IF_ALLOCATION_FAILED(thread_ids)
 
-		int lines_to_be_read = count_lines(h_input_file);
+	thread_size = create_thread_size(h_input_file, num_threads);//initial array with the amount of lines thread in index 'i' need to read
+	CHECK_IF_ALLOCATION_FAILED(thread_size);
 
 	for (i = 0; i < num_threads; i++)
 	{
-		if (lines_to_be_read % (num_threads-i) == 0)
-			lines_per_thread = lines_to_be_read / (num_threads - i);
-		else
-			lines_per_thread = (lines_to_be_read / (num_threads - i)) + 1;
 
 		start_point = get_start_point();
-		
-		if (i < (num_threads-1))//check if it's not the last thread
-			end_point = get_end_point(h_input_file, lines_per_thread);
-		else
-			end_point = GetFileSize(h_input_file, NULL);//the last thread reads until EOF
+		end_point = get_end_point(h_input_file, thread_size[i]);
 
 		ThreadData* data = CreateThreadData(start_point, end_point, input_path, output_path, key);
-		printf( "startpoint: %ld, endpoint:%ld\n", data->start_point, data->end_point);
+		printf( "lines_per_thread:%d, startpoint: %ld, endpoint:%ld\n", thread_size[i], data->start_point, data->end_point);
 		CHECK_IF_ALLOCATION_FAILED(data);
 		
 		if (enc_or_dec == 'd') {
@@ -137,7 +131,8 @@ int main(int argc, char* argv[]) {
 			printf("ERRROR: %d while attempt to create thread\n",	 GetLastError());
 			return 1;
 		}
-		lines_to_be_read = lines_to_be_read - lines_per_thread; //updating the remaining lines to be read for the rest of the threads
+		free(data);
+
 	}// End of main thread creation loop.
 
 	dw_ret = WaitForMultipleObjects(

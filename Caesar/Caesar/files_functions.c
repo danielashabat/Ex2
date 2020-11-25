@@ -83,6 +83,9 @@ DWORD get_end_point(HANDLE hfile, int lines_per_thread) {
 	BOOL bResult = FALSE;
 	int count_lines = 0;
 
+	if (lines_per_thread == 0) {//if no lines need to be read, return -1.
+		return -1;
+	}
 	if (file_pointer == 0) {
 		//  move  file pointer to the begining  
 		DWORD dwPtr = SetFilePointer(hfile, file_pointer, NULL, FILE_BEGIN);
@@ -102,4 +105,26 @@ DWORD get_end_point(HANDLE hfile, int lines_per_thread) {
 	 
 	return (file_pointer -1);//end loop with extra byte
 
+}
+
+int* create_thread_size(HANDLE h_input_file, int num_threads) {
+	int* thread_size = NULL;
+	int total_lines_in_file = count_lines(h_input_file);
+	int i = 0;
+
+	thread_size=(int*)malloc(num_threads * sizeof(int));// creating array of int in the size of num_threads
+	if (thread_size == NULL) {
+		return NULL;
+	}
+	while (i < num_threads) {//initial size for every thread to 0.
+		thread_size[i] = 0;
+		i++;
+	}
+	i = 0;
+	while (i < total_lines_in_file) {//dividing all lines equally +-1 to threads
+		thread_size[i % num_threads]++;
+		i++;
+	}
+
+	return thread_size;
 }
