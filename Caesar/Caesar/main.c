@@ -7,7 +7,7 @@
 #include <stdlib.h> 
 #include <windows.h>
 #include "files_functions.h"
-#include "ThreadFunction.c"///////change to header!!
+#include "ThreadFunction.h"///////change to header!!
 
 
 // Defines --------------------------------------------------------------------
@@ -19,29 +19,7 @@
 }
 
 
-// Structs --------------------------------------------------------------------
 
-////the purpose of this struct is to hold the necessary arguments to 'ThreadFunction'
-typedef struct ThreadData {
-	char input_path[MAX_PATH];// the path of the input file
-	char output_path[MAX_PATH];// the path of the output file
-	DWORD  start_point;//the statring point (by bytes) the thread need to decrypte/encrypte 
-	DWORD end_point;//the ending point (by bytes) the thread need to decrypte/encrypte (include this bytes)
-	int key; // the key for the decryption/encryption
-} ThreadData;
-
-
-
-// Function Declarations -------------------------------------------------------
-
-//the purpose of this function is to create data for passsing the necessary arguments to 'ThreadFunction'
-//it returns pointer to ThreadData that contains the relevant data per thread by it's index thread.
-//if the function fails it returns NULL
-ThreadData* CreateThreadData(int start_point,////the statring point (by bytes) the thread need to decrypte/encrypte
-	int end_point,//the ending point (by bytes) the thread need to decrypte/encrypte (include this bytes)
-	char input_path[],//input file path
-	char output_path[], //output file path
-	int key);// the key for the decryption/encryption
 
 // Implementation -------------------------------------------------------
 
@@ -60,7 +38,7 @@ int main(int argc, char* argv[]) {
 	DWORD start_point = 0, end_point = 0;
 	
 
-	//check if there 4 arguments
+	//check if there exactly 5 arguments
 	if (argc < 5) {
 		printf("ERROR:not enough arguments!");
 		return EXIT_FAILURE;
@@ -74,7 +52,7 @@ int main(int argc, char* argv[]) {
 	strcpy_s(output_path, MAX_PATH, "decrypted.txt");
 	int key = atoi(argv[2]);
 	int num_threads =atoi(argv[3]);
-	int enc_or_dec = argv[4];
+	char enc_or_dec = argv[4][1];
 
 	h_input_file = CreateFileA(input_path,// file name 
 		GENERIC_READ,          // open for reading 
@@ -121,14 +99,27 @@ int main(int argc, char* argv[]) {
 		ThreadData* data = CreateThreadData(start_point, end_point, input_path, output_path, key);
 		printf( "startpoint: %ld, endpoint:%ld\n", data->start_point, data->end_point);
 		CHECK_IF_ALLOCATION_FAILED(data);
+		
+		if (enc_or_dec == 'd') {
+			*(threads_handles + i) = CreateThread(/////need to handle with this warning!!
+				NULL,                   // default security attributes
+				0,                    // use default stack size  
+				decrypt_thread,       // thread function name
+				data,          // argument to thread function 
+				0,                      // use default creation flags 
+				&thread_ids[i]);   // returns the thread identifie
+		}
 
-		*(threads_handles+i) = CreateThread(/////need to handle with this warning!!
-			NULL,                   // default security attributes
-			0,                    // use default stack size  
-			decryptor_thread,       // thread function name
-			NULL,          // argument to thread function 
-			0,                      // use default creation flags 
-			&thread_ids[i]);   // returns the thread identifie
+		if (enc_or_dec == 'e') {
+			*(threads_handles + i) = CreateThread(/////need to handle with this warning!!
+				NULL,                   // default security attributes
+				0,                    // use default stack size  
+				encrypt_thread,       // thread function name
+				data,          // argument to thread function 
+				0,                      // use default creation flags 
+				&thread_ids[i]);   // returns the thread identifie
+		}
+
 
 
 	// Check the return value for success.
@@ -166,25 +157,3 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-
-
-ThreadData* CreateThreadData(DWORD start_point,//
-							DWORD end_point,
-							 char input_path[],//input file path
-							char output_path[], //output file path
-							int key)// the key for the decryption/encryption
-				
-{
-	ThreadData *ptr_to_thread_data = NULL;
-	ptr_to_thread_data = (ThreadData*)malloc(sizeof(ThreadData));
-	if (ptr_to_thread_data == NULL) {
-		printf("ERROR: allocation failed!\n");
-		return NULL;
-	}
-	strcpy_s(ptr_to_thread_data->input_path, MAX_PATH, input_path);
-	strcpy_s(ptr_to_thread_data->output_path, MAX_PATH, output_path);
-	ptr_to_thread_data->start_point = start_point;
-	ptr_to_thread_data->end_point =end_point;
-	ptr_to_thread_data->key = key;
-	return ptr_to_thread_data;
-}

@@ -16,7 +16,7 @@ char char_decryptor(char letter, int key);
 char char_encryptor(char letter, int key);
 
 //this function decryptes the string with the given 'key' and change the string the the decrypted string.
-void string_decryptor(char* str, int key);
-
+char* string_decryptor(char* str, int key);
+char* string_encryptor(char* str, int key);
 #endif
 #pragma once

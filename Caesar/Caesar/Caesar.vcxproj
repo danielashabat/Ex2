@@ -131,6 +131,7 @@
   <ItemGroup>
     <ClInclude Include="decryptor.h" />
     <ClInclude Include="files_functions.h" />
+    <ClInclude Include="ThreadFunction.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

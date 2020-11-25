@@ -35,5 +35,8 @@
     <ClInclude Include="files_functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ThreadFunction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
