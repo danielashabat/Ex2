@@ -5,16 +5,22 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <Windows.h>
+#include "decryptor.h"
+#include "encryptor.h"
 
 //DEFINE -------------------------------------------------------
 
 #define MYNULL ((void*)0)
-//void check_ReadFile_WriteFile_errors(BOOL bError, DWORD number_of_bytes_to_read_or_write, LPDWORD lpNumberOfBytesRead_or_Written, char* file_name);
-DWORD set_file_size(HANDLE hfile, DWORD new_size);
-void Thread_Function();
-void read_and_write(LONG offset, DWORD number_of_bytes_to_read);
+
+
 void check_file_handle(HANDLE h_file, char* file_name);
 void check_ReadFile_WriteFile(BOOL bErrorFlag, DWORD number_of_bytes_to_read_or_write, DWORD lpNumberOfBytesRead_or_Written);
+DWORD WINAPI decrypt_thread(LPVOID lpParam);
+DWORD WINAPI encrypt_thread(LPVOID lpParam);
+void get_data_from_file_in_specipfic_lines(char* file_name_to_read, char* data_from_file, LONG offset, DWORD number_of_bytes_to_read);
+void write_to_specific_lines(char* file_name_to_write, char* data_to_file, LONG offset, DWORD number_of_bytes_to_read);
+
+
 
 typedef struct ThreadData {
 	char input_path[MAX_PATH];// the path of the input file
@@ -58,7 +64,7 @@ DWORD WINAPI encrypt_thread(LPVOID lpParam) {
 	//Read from file 
 	get_data_from_file_in_specipfic_lines(file_name_to_read, data_from_file, (LONG)start_char, (DWORD)number_of_bytes_to_read);
 	//decrypt data
-	data_to_file = string_decryptor(data_from_file, key);
+	data_to_file = string_encryptor(data_from_file, key);
 	//Write to file
 	write_to_specific_lines(file_name_to_write, data_to_file, (LONG)start_char, (DWORD)number_of_bytes_to_read);
 
