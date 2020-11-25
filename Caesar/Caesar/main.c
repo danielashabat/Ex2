@@ -63,11 +63,11 @@ int main(int argc, char* argv[]) {
 	
 
 	//check if there 4 arguments
-	if (argc < 4) {
+	if (argc < 5) {
 		printf("ERROR:not enough arguments!");
 		return EXIT_FAILURE;
 	}
-	if (argc > 4) {
+	if (argc > 5) {
 		printf("ERROR:too many arguments!");
 		return EXIT_FAILURE;
 	}
@@ -76,6 +76,7 @@ int main(int argc, char* argv[]) {
 	strcpy_s(output_path, MAX_PATH, "decrypted.txt");
 	int key = atoi(argv[2]);
 	int num_threads =atoi(argv[3]);
+	int enc_or_dec = argv[4];
 
 	h_input_file = CreateFileA(input_path,// file name 
 		GENERIC_READ,          // open for reading 
