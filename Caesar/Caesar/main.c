@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	lines_per_thread= count_lines(h_input_file) /num_threads;// dividing all the lines in the file with the number of threads 
+	//lines_per_thread= count_lines(h_input_file) /num_threads;// dividing all the lines in the file with the number of threads 
 
 	threads_handles = (HANDLE*)malloc(sizeof(HANDLE)*num_threads);//creating array of handles in the size of num_threads
 	CHECK_IF_ALLOCATION_FAILED(threads_handles);
@@ -86,9 +86,15 @@ int main(int argc, char* argv[]) {
 	thread_ids = (DWORD*)malloc(num_threads * sizeof(DWORD));// creating array of DWORD in the size of num_threads
 	CHECK_IF_ALLOCATION_FAILED(thread_ids)
 
+		int lines_to_be_read = count_lines(h_input_file);
 
 	for (i = 0; i < num_threads; i++)
 	{
+		if (lines_to_be_read % (num_threads-i) == 0)
+			lines_per_thread = lines_to_be_read / (num_threads - i);
+		else
+			lines_per_thread = (lines_to_be_read / (num_threads - i)) + 1;
+
 		start_point = get_start_point();
 		
 		if (i < (num_threads-1))//check if it's not the last thread
@@ -131,6 +137,7 @@ int main(int argc, char* argv[]) {
 			printf("ERRROR: %d while attempt to create thread\n",	 GetLastError());
 			return 1;
 		}
+		lines_to_be_read = lines_to_be_read - lines_per_thread; //updating the remaining lines to be read for the rest of the threads
 	}// End of main thread creation loop.
 
 	dw_ret = WaitForMultipleObjects(
