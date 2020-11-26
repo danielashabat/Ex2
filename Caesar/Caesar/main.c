@@ -23,13 +23,12 @@
 
 // Implementation -------------------------------------------------------
 
-//command line: caesar.exe, input_file, key, number of threads
+//command line: caesar.exe, input_file, key, number of threads, mode 
 int main(int argc, char* argv[]) {
 	int i = 0;
-	int lines_per_thread = 0;
 	char input_path[MAX_PATH];
 	char output_path[MAX_PATH];
-	int* thread_size;
+	int* lines_per_thread;
 	HANDLE h_input_file;
 	HANDLE h_output_file;
 	DWORD dw_ret = 0;
@@ -87,17 +86,25 @@ int main(int argc, char* argv[]) {
 	thread_ids = (DWORD*)malloc(num_threads * sizeof(DWORD));// creating array of DWORD in the size of num_threads
 	CHECK_IF_ALLOCATION_FAILED(thread_ids)
 
-	thread_size = create_thread_size(h_input_file, num_threads);//initial array with the amount of lines thread in index 'i' need to read
-	CHECK_IF_ALLOCATION_FAILED(thread_size);
+	lines_per_thread = create_thread_size(h_input_file, num_threads);//initial array with the amount of lines thread in index 'i' need to read
+	CHECK_IF_ALLOCATION_FAILED(lines_per_thread);
+
+	ret_val = CloseHandle(h_output_file);
+	CHECK_IF_CLOSING_HANDLE_FAILED(ret_val);
+
 
 	for (i = 0; i < num_threads; i++)
 	{
 
 		start_point = get_start_point();
-		end_point = get_end_point(h_input_file, thread_size[i]);
+		if (i != num_threads - 1)
+			end_point = get_end_point(h_input_file,lines_per_thread[i]);
+		else
+			end_point = GetFileSize(h_input_file, NULL);
+		
 
 		ThreadData* data = CreateThreadData(start_point, end_point, input_path, output_path, key);
-		printf( "lines_per_thread:%d, startpoint: %ld, endpoint:%ld\n", thread_size[i], data->start_point, data->end_point);
+		printf( "lines_per_thread:%d, startpoint: %ld, endpoint:%ld\n", lines_per_thread[i], data->start_point, data->end_point);
 		CHECK_IF_ALLOCATION_FAILED(data);
 		
 		if (enc_or_dec == 'd') {
@@ -122,16 +129,16 @@ int main(int argc, char* argv[]) {
 
 
 
-	// Check the return value for success.
-	// If CreateThread fails, terminate execution. 
-	// This will automatically clean up threads and memory. 
+	 //Check the return value for success.
+	 //If CreateThread fails, terminate execution. 
+	 //This will automatically clean up threads and memory. 
 
 		if (*(threads_handles+i) == NULL)
 		{
 			printf("ERRROR: %d while attempt to create thread\n",	 GetLastError());
 			return 1;
 		}
-		free(data);
+		//free(data);
 
 	}// End of main thread creation loop.
 
@@ -153,7 +160,7 @@ int main(int argc, char* argv[]) {
 		printf("ERROR:closing one of the handles handles failed!\n");
 		return 1;
 	}
-
+	free(lines_per_thread);
 	free(threads_handles);
 	free(thread_ids);
 	return 0;

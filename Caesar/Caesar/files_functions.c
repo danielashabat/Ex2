@@ -63,9 +63,9 @@ int close_all_handles(HANDLE hInputFile, HANDLE hOutputFile, HANDLE threads_hand
 	CHECK_IF_CLOSING_HANDLE_FAILED(ret_val);
 
 	//close output file handle
-	ret_val = CloseHandle(hOutputFile);
-	CHECK_IF_CLOSING_HANDLE_FAILED(ret_val);
-	return 0;//returns 0 if all the handles closed
+	//ret_val = CloseHandle(hOutputFile);
+	//CHECK_IF_CLOSING_HANDLE_FAILED(ret_val);
+	//return 0;//returns 0 if all the handles closed
 }
 
 
@@ -108,23 +108,30 @@ DWORD get_end_point(HANDLE hfile, int lines_per_thread) {
 }
 
 int* create_thread_size(HANDLE h_input_file, int num_threads) {
-	int* thread_size = NULL;
+	int* lines_per_thread = NULL;
 	int total_lines_in_file = count_lines(h_input_file);
 	int i = 0;
 
-	thread_size=(int*)malloc(num_threads * sizeof(int));// creating array of int in the size of num_threads
-	if (thread_size == NULL) {
+	lines_per_thread=(int*)malloc(num_threads * sizeof(int));// creating array of int in the size of num_threads
+	if (lines_per_thread == NULL) {
 		return NULL;
 	}
 	while (i < num_threads) {//initial size for every thread to 0.
-		thread_size[i] = 0;
+		lines_per_thread[i] = 0;
 		i++;
 	}
 	i = 0;
 	while (i < total_lines_in_file) {//dividing all lines equally +-1 to threads
-		thread_size[i % num_threads]++;
+		lines_per_thread[i % (num_threads)]++;
+		
 		i++;
 	}
 
-	return thread_size;
+	printf("there is total %d threads in program and %d toal lines\n", num_threads, total_lines_in_file);
+	i = 0;
+	while (i < num_threads) {
+	printf("thread %d lines_per_thread:%d\n", i, lines_per_thread[i % (num_threads)]);
+	i++;
+	}
+	return lines_per_thread;
 }
