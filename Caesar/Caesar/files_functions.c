@@ -83,6 +83,9 @@ DWORD get_end_point(HANDLE hfile, int lines_per_thread) {
 	BOOL bResult = FALSE;
 	int count_lines = 0;
 
+	if (lines_per_thread == 0) {//if no lines need to be read, return -1.
+		return -1;
+	}
 	if (file_pointer == 0) {
 		//  move  file pointer to the begining  
 		DWORD dwPtr = SetFilePointer(hfile, file_pointer, NULL, FILE_BEGIN);
@@ -102,4 +105,33 @@ DWORD get_end_point(HANDLE hfile, int lines_per_thread) {
 	 
 	return (file_pointer -1);//end loop with extra byte
 
+}
+
+int* divide_lines_per_thread(HANDLE h_input_file, int num_threads) {
+	int* lines_per_thread = NULL;
+	int total_lines_in_file = count_lines(h_input_file);
+	int i = 0;
+
+	lines_per_thread=(int*)malloc(num_threads * sizeof(int));// creating array of int in the size of num_threads
+	if (lines_per_thread == NULL) {
+		return NULL;
+	}
+	while (i < num_threads) {//initial size for every thread to 0.
+		lines_per_thread[i] = 0;
+		i++;
+	}
+	i = 0;
+	while (i < total_lines_in_file) {//dividing all lines equally +-1 to threads
+		lines_per_thread[i % (num_threads)]++;
+		
+		i++;
+	}
+
+	printf("there is total %d threads in program and %d toal lines, total size of file(bytes):%ld\n", num_threads, total_lines_in_file,);
+	i = 0;
+	while (i < num_threads) {
+	printf("thread %d lines_per_thread:%d\n", i, lines_per_thread[i % (num_threads)]);
+	i++;
+	}
+	return lines_per_thread;
 }

@@ -35,6 +35,9 @@ DWORD get_end_point(HANDLE hfile, //handler to input file
 					int lines_per_thread);//the number of lines every thread need to read
 
 
+int* divide_lines_per_thread(h_input_file, num_threads);
+
+
 // static vars Declarations -------------------------------------------------------
 static DWORD file_pointer = 0;
 

@@ -27,6 +27,9 @@
     <ClCompile Include="files_functions.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="daniela.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="decryptor.h">
