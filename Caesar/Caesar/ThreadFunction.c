@@ -56,27 +56,29 @@ DWORD WINAPI encrypt_thread(LPVOID lpParam) {
 	p_params = (ThreadData*)lpParam;
 
 	//Get parameters
-	strcpy_s(file_name_to_read, sizeof(file_name_to_read), p_params->input_path);
-	strcpy_s(file_name_to_write, sizeof(file_name_to_write), p_params->output_path);
+	strcpy_s(file_name_to_read, MAX_PATH, p_params->input_path);
+	strcpy_s(file_name_to_write, MAX_PATH, p_params->output_path);
 	start_char = p_params->start_point;
 	end_char = p_params->end_point;
 	key = p_params->key;
+	free(lpParam);
 	//calculate number of bytes to read and write
-	number_of_bytes_to_read = end_char - start_char;
+	number_of_bytes_to_read = end_char - start_char + 1;
 	//Create string to ReadFile and WriteFile
-	char* data_from_file;
-	data_from_file = (char*)malloc(number_of_bytes_to_read * sizeof(char));
-	char* data_to_file;
-	data_to_file = (char*)malloc(number_of_bytes_to_read * sizeof(char));
+	char* data;
+	data = (char*)malloc(number_of_bytes_to_read * sizeof(char));
+	//memset(data, 0, (number_of_bytes_to_read));
 
 
 	//Read from file 
-	get_data_from_file_in_specipfic_lines(file_name_to_read, data_from_file, (LONG)start_char, (DWORD)number_of_bytes_to_read);
+	get_data_from_file_in_specipfic_lines(file_name_to_read, data, start_char, number_of_bytes_to_read);
 	//decrypt data
-	data_to_file = string_encryptor(data_from_file, key);
+	string_encryptor(data, key, number_of_bytes_to_read);
 	//Write to file
-	write_to_specific_lines(file_name_to_write, data_to_file, (LONG)start_char, (DWORD)number_of_bytes_to_read);
+	write_to_specific_lines(file_name_to_write, data, start_char, number_of_bytes_to_read);
+	free(data);
 
+	
 }
 
 DWORD WINAPI decrypt_thread(LPVOID lpParam) {
@@ -98,22 +100,23 @@ DWORD WINAPI decrypt_thread(LPVOID lpParam) {
 	start_char = p_params->start_point;
 	end_char = p_params->end_point;
 	key = p_params->key;
+	free(lpParam);
 	//calculate number of bytes to read and write
-	number_of_bytes_to_read = end_char - start_char+1;
+	number_of_bytes_to_read = end_char - start_char +1 ;
 	//Create string to ReadFile and WriteFile
-	char* data_from_file;
-	data_from_file = (char*)malloc(number_of_bytes_to_read * sizeof(char));
-	char* data_to_file;
-	data_to_file = (char*)malloc(number_of_bytes_to_read * sizeof(char));
+	char* data;
+	data = (char*)malloc(number_of_bytes_to_read * sizeof(char));
+	//memset(data, 0, (number_of_bytes_to_read));
 
 
 	//Read from file 
-	get_data_from_file_in_specipfic_lines(file_name_to_read, data_from_file, start_char, number_of_bytes_to_read);
+	get_data_from_file_in_specipfic_lines(file_name_to_read, data, start_char, number_of_bytes_to_read);
 	//decrypt data
-	data_to_file = string_decryptor(data_from_file, key);
+	string_decryptor(data, key,number_of_bytes_to_read);
 	//Write to file
-	write_to_specific_lines(file_name_to_write, data_to_file, start_char, number_of_bytes_to_read);
-
+	write_to_specific_lines(file_name_to_write, data, start_char, number_of_bytes_to_read);
+	free(data);
+	
 
 }
 
@@ -128,7 +131,7 @@ void get_data_from_file_in_specipfic_lines(char* file_name_to_read, char* data_f
 	int dw_pointer;
 
 	//Create handle to output file 
-	hfile_to_read = CreateFileA((LPCSTR)file_name_to_read, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_SHARE_READ, MYNULL);
+	hfile_to_read = CreateFileA((LPCSTR)file_name_to_read, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, MYNULL);
 	check_file_handle(hfile_to_read, file_name_to_read);
 
 	// Set pointer to the place we want to start reading.

@@ -32,13 +32,12 @@ char char_decryptor(char letter, int key) {
 }
 
 //this function decryptes the string with the given 'key' and change the string the the decrypted string.
-char* string_decryptor(char* str, int key) {
-	for (int i = 0; str[i] != '\0'; i++)
+void string_decryptor(char* str, int key, int num_to_count) {
+	for (int i = 0; i<num_to_count; i++)
 	{
 		str[i] = char_decryptor(str[i], key);
 	}
 
-	return str;
 }
 
 char char_encryptor(char letter, int key) {
@@ -60,11 +59,10 @@ char char_encryptor(char letter, int key) {
 
 
 //this function decryptes the string with the given 'key' and change the string the the decrypted string.
-char* string_encryptor(char* str, int key) {
-	for (int i = 0; str[i] != '\0'; i++)
+void string_encryptor(char* str, int key,int num_to_count) {
+	for (int i = 0; i<num_to_count; i++)
 	{
 		str[i] = char_encryptor(str[i], key);
 	}
-	return str;
 
 }

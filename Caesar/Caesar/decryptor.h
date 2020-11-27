@@ -12,11 +12,10 @@ int is_capital_letter(char letter);
 int is_lower_case(char letter);
 int is_char_digit(char letter);
 char char_decryptor(char letter, int key);
-
 char char_encryptor(char letter, int key);
 
 //this function decryptes the string with the given 'key' and change the string the the decrypted string.
-char* string_decryptor(char* str, int key);
-char* string_encryptor(char* str, int key);
+void string_decryptor(char* str, int key, int num_to_count);
+void string_encryptor(char* str, int key, int num_to_count);
 #endif
 #pragma once
