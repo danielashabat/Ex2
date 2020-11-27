@@ -6,7 +6,6 @@
 #include <assert.h>
 #include <Windows.h>
 #include "decryptor.h"
-#include "encryptor.h"
 #include "ThreadFunction.h"
 
 //DEFINE -------------------------------------------------------
