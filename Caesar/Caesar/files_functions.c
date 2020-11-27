@@ -95,9 +95,13 @@ DWORD get_end_point(HANDLE hfile, int lines_per_thread) {
 			return INVALID_SET_FILE_POINTER;
 		} // End of error handler 
 	}
-	while (!bResult || (dwBytesRead != 0) && (count_lines < lines_per_thread)) {//looping until it's end-of-file or it read all the lines needed
+
+	while  (count_lines < lines_per_thread) {//looping until it's end-of-file or it read all the lines needed
 		bResult = ReadFile(hfile, &char_buffer, nBytesToRead, &dwBytesRead, NULL);
+		if (bResult && dwBytesRead == 0)//check if EOF
+			break;
 		file_pointer++;
+
 		if (char_buffer == '\n') {
 			count_lines++;
 		}
