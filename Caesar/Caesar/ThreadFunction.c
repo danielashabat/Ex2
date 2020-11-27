@@ -60,23 +60,29 @@ DWORD WINAPI encrypt_thread(LPVOID lpParam) {
 	strcpy_s(file_name_to_write, MAX_PATH, (LPSTR)(p_params->output_path));
 	start_char = p_params->start_point;
 	end_char = p_params->end_point;
+
+	if (end_char == -1) {//no lines need to be read
+		return 0;
+	}
+
+
 	key = p_params->key;
 	//calculate number of bytes to read and write
 	number_of_bytes_to_read = end_char - start_char;
 	//Create string to ReadFile and WriteFile
-	char* data_from_file;
-	data_from_file = (char*)malloc(number_of_bytes_to_read * sizeof(char));
-	char* data_to_file;
-	data_to_file = (char*)malloc(number_of_bytes_to_read * sizeof(char));
+	char* data_file;
+	data_file = (char*)malloc(number_of_bytes_to_read * sizeof(char));
 
 
 	//Read from file 
-	get_data_from_file_in_specipfic_lines(file_name_to_read, data_from_file, (LONG)start_char, (DWORD)number_of_bytes_to_read);
+	get_data_from_file_in_specipfic_lines(file_name_to_read, data_file, (LONG)start_char, (DWORD)number_of_bytes_to_read);
 	//decrypt data
-	data_to_file = string_encryptor(data_from_file, key);
+	data_file = string_encryptor(data_file, key);
 	//Write to file
-	write_to_specific_lines(file_name_to_write, data_to_file, (LONG)start_char, (DWORD)number_of_bytes_to_read);
+	write_to_specific_lines(file_name_to_write, data_file, (LONG)start_char, (DWORD)number_of_bytes_to_read);
 	free(lpParam);
+	free(data_file);
+	return 0;
 }
 
 DWORD WINAPI decrypt_thread(LPVOID lpParam) {
@@ -97,6 +103,10 @@ DWORD WINAPI decrypt_thread(LPVOID lpParam) {
 	strcpy_s(file_name_to_write, MAX_PATH, p_params->output_path);
 	start_char = p_params->start_point;
 	end_char = p_params->end_point;
+	if (end_char == -1) {//no lines need to be read
+		return 0;
+	}
+
 	key = p_params->key;
 	//calculate number of bytes to read and write
 	number_of_bytes_to_read = end_char - start_char+1;//+1 factor for including the end_point byte
@@ -110,11 +120,11 @@ DWORD WINAPI decrypt_thread(LPVOID lpParam) {
 	data_file = string_decryptor(data_file, key);///DS: string_decryptor returns pointer to the new data!! no need for two vars
 	//Write to file
 
-	//data_file = "lala";
+
 	write_to_specific_lines(file_name_to_write, data_file, start_char, number_of_bytes_to_read);
 	free(data_file);
 	free(lpParam);
-
+	return 0;
 }
 
 
