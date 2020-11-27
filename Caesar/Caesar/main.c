@@ -48,11 +48,20 @@ int main(int argc, char* argv[]) {
 		return EXIT_FAILURE;
 	}
 	
-	strcpy_s(input_path,MAX_PATH,argv[1]);
-	strcpy_s(output_path, MAX_PATH, "decrypted.txt");
+
 	int key = atoi(argv[2]);
 	int num_threads =atoi(argv[3]);
 	char enc_or_dec = argv[4][1];
+
+	strcpy_s(input_path, MAX_PATH, argv[1]);
+
+	switch (enc_or_dec) {
+	case 'd':
+		strcpy_s(output_path, MAX_PATH, "decrypted.txt");
+		break;
+	case 'e':
+		strcpy_s(output_path, MAX_PATH, "encrypted.txt");
+	}
 
 	h_input_file = CreateFileA(input_path,// file name 
 		GENERIC_READ,          // open for reading 
@@ -99,7 +108,7 @@ int main(int argc, char* argv[]) {
 
 
 		ThreadData* data = CreateThreadData(start_point, end_point, input_path, output_path, key);
-		printf( "lines_per_thread:%d, startpoint: %ld, endpoint:%ld\n", lines_per_thread[i], data->start_point, data->end_point);
+		printf( "thread index: %d, lines_per_thread:%d, startpoint: %ld, endpoint:%ld\n",i, lines_per_thread[i], data->start_point, data->end_point);
 		CHECK_IF_ALLOCATION_FAILED(data);
 		
 		if (enc_or_dec == 'd') {

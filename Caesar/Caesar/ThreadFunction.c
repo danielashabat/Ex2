@@ -61,6 +61,10 @@ DWORD WINAPI encrypt_thread(LPVOID lpParam) {
 	end_char = p_params->end_point;
 	key = p_params->key;
 	free(lpParam);
+
+	if (end_char == -1)//if -1, the file reach to EOF
+		return 1;
+
 	//calculate number of bytes to read and write
 	number_of_bytes_to_read = end_char - start_char + 1;
 	//Create string to ReadFile and WriteFile
@@ -100,6 +104,10 @@ DWORD WINAPI decrypt_thread(LPVOID lpParam) {
 	end_char = p_params->end_point;
 	key = p_params->key;
 	free(lpParam);
+
+	if (end_char == -1)//if -1, the file reach to EOF
+		return 1;
+
 	//calculate number of bytes to read and write
 	number_of_bytes_to_read = end_char - start_char +1 ;
 	//Create string to ReadFile and WriteFile
