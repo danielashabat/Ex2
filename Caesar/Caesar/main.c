@@ -25,6 +25,7 @@
 
 //command line: caesar.exe, input_file, key, number of threads, mode 
 int main(int argc, char* argv[]) {
+	BOOL pass_or_fail = FALSE;
 	int i = 0;
 	char input_path[MAX_PATH];
 	char output_path[MAX_PATH];
@@ -95,7 +96,7 @@ int main(int argc, char* argv[]) {
 	thread_ids = (DWORD*)malloc(num_threads * sizeof(DWORD));// creating array of DWORD in the size of num_threads
 	CHECK_IF_ALLOCATION_FAILED(thread_ids)
 
-	lines_per_thread = divide_lines_per_thread(h_input_file, num_threads);//initial array with the amount of lines thread in index 'i' need to read
+	pass_or_fail = divide_lines_per_thread(h_input_file, num_threads,&lines_per_thread);//initial array with the amount of lines thread in index 'i' need to read
 	CHECK_IF_ALLOCATION_FAILED(lines_per_thread);
 
 

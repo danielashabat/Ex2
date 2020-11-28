@@ -8,27 +8,31 @@
 #include <windows.h>
 #include "files_functions.h"
 
-
+#define SUCCSESS TRUE;
+#define FAIL FALSE;
 // Implementation -------------------------------------------------------
 
 
-int count_lines(HANDLE hfile) {
+BOOL count_lines(HANDLE hfile,int* count_lines) {
 	char char_buffer;
 	DWORD nBytesToRead = 1;
 	DWORD dwBytesRead = 0;
 	DWORD dwFileSize = GetFileSize(hfile, NULL);
 	BOOL bResult = FALSE;
-	int count_lines = 0;
+	BOOL retVal=FALSE;
 
 	while (!bResult || (dwBytesRead != 0)) {
 		bResult = ReadFile(hfile, &char_buffer, nBytesToRead, &dwBytesRead, NULL);
-
+		retVal = check_ReadFile_WriteFile(bResult,nBytesToRead,dwBytesRead);
+		if (retVal == FALSE) {
+			return FALSE;
+		}
 		if (char_buffer == '\n') {
-			count_lines++;
+			*count_lines++;
 		}
 	}
-	count_lines++;
-	return count_lines;
+	*count_lines++;
+	return TRUE;
 }
 
 
@@ -112,22 +116,26 @@ DWORD get_end_point(HANDLE hfile, int lines_per_thread) {
 
 }
 
-int* divide_lines_per_thread(HANDLE h_input_file, int num_threads) {
-	int* lines_per_thread = NULL;
-	int total_lines_in_file = count_lines(h_input_file);
+BOOL divide_lines_per_thread(HANDLE h_input_file, int num_threads, int** lines_per_thread) {
+	int total_lines_in_file = 0;
+	BOOL fail_or_pass = FALSE;
+	fail_or_pass = count_lines(h_input_file,&total_lines_in_file);
+	if (!fail_or_pass) {
+		return FAIL;
+	}
 	int i = 0;
 
-	lines_per_thread=(int*)malloc(num_threads * sizeof(int));// creating array of int in the size of num_threads
-	if (lines_per_thread == NULL) {
-		return NULL;
+	*lines_per_thread=(int*)malloc(num_threads * sizeof(int));// creating array of int in the size of num_threads
+	if (*lines_per_thread == NULL) {
+		return FAIL;
 	}
 	while (i < num_threads) {//initial size for every thread to 0.
-		lines_per_thread[i] = 0;
+		*lines_per_thread[i] = 0;
 		i++;
 	}
 	i = 0;
 	while (i < total_lines_in_file) {//dividing all lines equally +-1 to threads
-		lines_per_thread[i % (num_threads)]++;
+		*lines_per_thread[i % (num_threads)]++;
 		
 		i++;
 	}
@@ -135,10 +143,10 @@ int* divide_lines_per_thread(HANDLE h_input_file, int num_threads) {
 	printf("there is total %d threads in program and %d total lines, total size of file(bytes):%ld\n", num_threads, total_lines_in_file, GetFileSize(h_input_file, NULL));
 	i = 0;
 	while (i < num_threads) {
-	printf("thread %d lines_per_thread:%d\n", i, lines_per_thread[i % (num_threads)]);
+	printf("thread %d lines_per_thread:%d\n", i, *lines_per_thread[i % (num_threads)]);
 	i++;
 	}
-	return lines_per_thread;
+	return SUCCSESS;
 }
 
 
@@ -146,22 +154,22 @@ int check_file_handle(HANDLE h_file, char* file_name) {
 	if (h_file == INVALID_HANDLE_VALUE) {
 
 		printf("Could not open %s file, error %ld\n", file_name, GetLastError());
-		return 1;
+		return FAIL;
 	}
 	else {
 
 		printf("%s file HANDLE is OK!\n", file_name);
-		return 0;
+		return SUCCSESS;
 
 	}
 }
 
-int check_ReadFile_WriteFile(BOOL bErrorFlag, DWORD number_of_bytes_to_read_or_write, DWORD lpNumberOfBytesRead_or_Written) {
+BOOL check_ReadFile_WriteFile(BOOL bErrorFlag, DWORD number_of_bytes_to_read_or_write, DWORD lpNumberOfBytesRead_or_Written) {
 
 	if (FALSE == bErrorFlag)
 	{
 		printf("Terminal failure: Unable to write to file.\n");
-		return 1;
+		return FAIL;
 	}
 	else
 	{
@@ -177,7 +185,7 @@ int check_ReadFile_WriteFile(BOOL bErrorFlag, DWORD number_of_bytes_to_read_or_w
 		{
 			printf("Read or Write successfully.\n");
 		}
-		return 0;
+		return SUCCSESS;
 	}
 
 

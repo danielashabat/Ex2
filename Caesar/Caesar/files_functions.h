@@ -16,7 +16,7 @@
 
 //this function counts the number of lines in the file
 //returns an int that represent the number of lines in the given file
-int count_lines(HANDLE hfile);//handler to file
+BOOL count_lines(HANDLE hfile, int* count_lines);//handler to file
 
 /*this function setting the file size to new_size(in bytes)
 the function return 'INVALID_SET_FILE_POINTER' if it fails, and '0' otherwise*/
@@ -35,7 +35,7 @@ DWORD get_end_point(HANDLE hfile, //handler to input file
 					int lines_per_thread);//the number of lines every thread need to read
 
 
-int* divide_lines_per_thread(h_input_file, num_threads);
+BOOL divide_lines_per_thread(h_input_file, num_threads);
 
 
 // static vars Declarations -------------------------------------------------------
