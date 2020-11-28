@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
 	DWORD *thread_ids =NULL; ////pointer to threads ids array
 	BOOL ret_val;
 	DWORD start_point = 0, end_point = 0;
-	
+	ThreadData* ptr_to_thread_data = NULL;
 
 	//check if there exactly 5 arguments
 	if (argc < 5) {
@@ -107,7 +107,7 @@ int main(int argc, char* argv[]) {
 
 		pass_or_fail = get_end_point(h_input_file,lines_per_thread[i],&end_point);
 
-
+		
 		ThreadData* data = CreateThreadData(start_point, end_point, input_path, output_path, key);
 		printf( "thread index: %d, lines_per_thread:%d, startpoint: %ld, endpoint:%ld\n",i, lines_per_thread[i], data->start_point, data->end_point);
 		CHECK_IF_ALLOCATION_FAILED(data);

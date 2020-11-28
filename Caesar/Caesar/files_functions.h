@@ -28,11 +28,13 @@ return 0 if all the handles closed, return 1 otherwise*/
 int close_all_handles(HANDLE hInputFile, HANDLE hOutputFile, HANDLE threads_handles[], int num_threads);
 
 //returns the starting point for thread (by bytes)
-DWORD get_start_point();
+void get_start_point(DWORD * start_point);
 
 /*move pointer by number of lines 'lines_per_thread' and returns the end point for thread*/
-DWORD get_end_point(HANDLE hfile, //handler to input file 
-					int lines_per_thread);//the number of lines every thread need to read
+BOOL get_end_point(HANDLE hfile, //handler to input file 
+	int lines_per_thread,//the number of lines every thread need to read
+	DWORD * end_point);
+					
 
 
 BOOL divide_lines_per_thread(h_input_file, num_threads);

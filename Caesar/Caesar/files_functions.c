@@ -73,14 +73,14 @@ int close_all_handles(HANDLE hInputFile, HANDLE hOutputFile, HANDLE threads_hand
 }
 
 
-void get_start_point(int* start_point) {
+void get_start_point(DWORD* start_point) {
 	*start_point = file_pointer;
 }
 
 
 
 
-DWORD get_end_point(HANDLE hfile, int lines_per_thread,int* end_point) {
+BOOL get_end_point(HANDLE hfile, int lines_per_thread,DWORD* end_point) {
 	char char_buffer;
 	DWORD nBytesToRead = 1;
 	DWORD dwBytesRead = 0;
