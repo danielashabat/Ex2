@@ -29,8 +29,8 @@ int main(int argc, char* argv[]) {
 	char input_path[MAX_PATH];
 	char output_path[MAX_PATH];
 	int* lines_per_thread;
-	HANDLE h_input_file;
-	HANDLE h_output_file;
+	HANDLE h_input_file=NULL;
+	HANDLE h_output_file=NULL;
 	DWORD dw_ret = 0;
 	HANDLE* threads_handles = NULL; //pointer to threads handles array
 	DWORD *thread_ids =NULL; ////pointer to threads ids array
@@ -70,7 +70,8 @@ int main(int argc, char* argv[]) {
 		OPEN_EXISTING,         // existing file only 
 		FILE_ATTRIBUTE_NORMAL, // normal file 
 		NULL);                 // no template 
-
+	if (h_input_file == INVALID_HANDLE_VALUE)
+		goto cleanup;
 
 	h_output_file = CreateFileA(output_path,// file name 
 		GENERIC_WRITE,          // open for reading 
@@ -79,7 +80,6 @@ int main(int argc, char* argv[]) {
 		CREATE_ALWAYS,         // always creats a new file, if the file exists it overwrites it 
 		FILE_ATTRIBUTE_NORMAL, // normal file 
 		NULL);                 // no template 
-
 
 	dw_ret= set_file_size(h_output_file, GetFileSize(h_input_file, NULL));
 	if (dw_ret == 1 ){
@@ -159,6 +159,7 @@ int main(int argc, char* argv[]) {
 	
 	}
 
+	cleanup:
 	ret_val=close_all_handles(h_input_file, h_output_file, threads_handles, num_threads);//closing all the handles
 	if (ret_val == 1) {
 		printf("ERROR:closing one of the handles handles failed!\n");
