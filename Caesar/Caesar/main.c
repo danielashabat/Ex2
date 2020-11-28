@@ -35,12 +35,12 @@ int main(int argc, char* argv[]) {
 	int i = 0;
 	char input_path[MAX_PATH];
 	char output_path[MAX_PATH];
-	int* lines_per_thread=NULL;
-	HANDLE h_input_file=NULL;
-	HANDLE h_output_file=NULL;
+	int* lines_per_thread = NULL;
+	HANDLE h_input_file = NULL;
+	HANDLE h_output_file = NULL;
 	DWORD dw_ret = 0;
 	HANDLE* threads_handles = NULL; //pointer to threads handles array
-	DWORD *thread_ids =NULL; ////pointer to threads ids array
+	DWORD* thread_ids = NULL; ////pointer to threads ids array
 	BOOL ret_val;
 	DWORD start_point = 0, end_point = 0;
 	ThreadData* ptr_to_thread_data = NULL;
@@ -55,10 +55,10 @@ int main(int argc, char* argv[]) {
 		printf("ERROR:too many arguments!");
 		return EXIT_FAILURE;
 	}
-	
+
 
 	int key = atoi(argv[2]);
-	int num_threads =atoi(argv[3]);
+	int num_threads = atoi(argv[3]);
 	char enc_or_dec = argv[4][1];
 
 	strcpy_s(input_path, MAX_PATH, argv[1]);
@@ -78,10 +78,18 @@ int main(int argc, char* argv[]) {
 		OPEN_EXISTING,         // existing file only 
 		FILE_ATTRIBUTE_NORMAL, // normal file 
 		NULL);                 // no template 
-	pass_or_fail = check_file_handle(h_input_file,input_path);
-	if (!pass_or_fail)
-		goto cleanup;
+	pass_or_fail = check_file_handle(h_input_file, input_path);
+	if (!pass_or_fail) {
+		ret_val = close_all_handles(h_input_file, h_output_file, threads_handles, num_threads, lines_per_thread, thread_ids);//closing all the handles
+		if (ret_val == 1) {
+			printf("ERROR:closing one of the handles handles failed!\n");
+			return 1;
+		}
 
+		if (!pass_or_fail) {
+			return 1;
+		}
+	}
 	h_output_file = CreateFileA(output_path,// file name 
 		GENERIC_WRITE,          // open for reading 
 		FILE_SHARE_WRITE,      // open sharing for writing only 
@@ -90,13 +98,26 @@ int main(int argc, char* argv[]) {
 		FILE_ATTRIBUTE_NORMAL, // normal file 
 		NULL);                 // no template 
 	pass_or_fail = check_file_handle(h_output_file, output_path);
-	if (!pass_or_fail)
-		goto cleanup;
-	dw_ret= set_file_size(h_output_file, GetFileSize(h_input_file, NULL));
-	if (dw_ret == 1 ){
+	if (!pass_or_fail) {
+		ret_val = close_all_handles(h_input_file, h_output_file, threads_handles, num_threads, lines_per_thread, thread_ids);//closing all the handles
+		if (ret_val == 1) {
+			printf("ERROR:closing one of the handles handles failed!\n");
+			return 1;
+		}
+		return 1;
+
+	}
+
+	dw_ret = set_file_size(h_output_file, GetFileSize(h_input_file, NULL));
+	if (dw_ret == 1) {
 		pass_or_fail = FAIL;
 		printf("ERROR:%d  set_file_size failed\n", GetLastError());
-		goto cleanup;
+		ret_val = close_all_handles(h_input_file, h_output_file, threads_handles, num_threads, lines_per_thread, thread_ids);//closing all the handles
+		if (ret_val == 1) {
+			printf("ERROR:closing one of the handles handles failed!\n");
+			return 1;
+		}
+		return 1;
 	}
 
 	//lines_per_thread= count_lines(h_input_file) /num_threads;// dividing all the lines in the file with the number of threads 
@@ -109,7 +130,12 @@ int main(int argc, char* argv[]) {
 	if (threads_handles == NULL) {//checl if aloocation failed
 		pass_or_fail = FAIL;
 		printf("memory allocation failed\n");
-		goto cleanup;
+		ret_val = close_all_handles(h_input_file, h_output_file, threads_handles, num_threads, lines_per_thread, thread_ids);//closing all the handles
+		if (ret_val == 1) {
+			printf("ERROR:closing one of the handles handles failed!\n");
+			return 1;
+		}
+		return 1;
 	}
 
 	thread_ids = (DWORD*)malloc(num_threads * sizeof(DWORD));// creating array of DWORD in the size of num_threads
@@ -119,13 +145,26 @@ int main(int argc, char* argv[]) {
 	if (thread_ids == NULL) {//check if aloocation failed
 		pass_or_fail = FAIL;
 		printf("memory allocation failed\n");
-		goto cleanup;
+		ret_val = close_all_handles(h_input_file, h_output_file, threads_handles, num_threads, lines_per_thread, thread_ids);//closing all the handles
+		if (ret_val == 1) {
+			printf("ERROR:closing one of the handles handles failed!\n");
+			return 1;
+		}
+		return 1;
+
 	}
 
 
 	pass_or_fail = divide_lines_per_thread(h_input_file, num_threads,&lines_per_thread);//initial array with the amount of lines thread in index 'i' need to read
-	if (!pass_or_fail)
-		goto cleanup;
+	if (!pass_or_fail) {
+		ret_val = close_all_handles(h_input_file, h_output_file, threads_handles, num_threads, lines_per_thread, thread_ids);//closing all the handles
+		if (ret_val == 1) {
+			printf("ERROR:closing one of the handles handles failed!\n");
+			return 1;
+		}
+		return 1;
+		
+	}
 
 
 	for (i = 0; i < num_threads; i++)
@@ -134,12 +173,25 @@ int main(int argc, char* argv[]) {
 		get_start_point(&start_point);
 
 		pass_or_fail = get_end_point(h_input_file,lines_per_thread[i],&end_point);
-		if (!pass_or_fail)
-			goto cleanup;
+		if (!pass_or_fail) {
+			ret_val = close_all_handles(h_input_file, h_output_file, threads_handles, num_threads, lines_per_thread, thread_ids);//closing all the handles
+			if (ret_val == 1) {
+				printf("ERROR:closing one of the handles handles failed!\n");
+				return 1;
+			}
+			return 1;
+		}
 		
 		pass_or_fail = CreateThreadData(start_point, end_point, input_path, output_path, key,&ptr_to_thread_data);
-		if (!pass_or_fail)
-			goto cleanup;
+		if (!pass_or_fail) {
+			ret_val = close_all_handles(h_input_file, h_output_file, threads_handles, num_threads, lines_per_thread, thread_ids);//closing all the handles
+			if (ret_val == 1) {
+				printf("ERROR:closing one of the handles handles failed!\n");
+				return 1;
+			}
+			return 1;
+			
+		}
 		printf( "thread index: %d, lines_per_thread:%d, startpoint: %ld, endpoint:%ld\n",i, lines_per_thread[i], ptr_to_thread_data->start_point, ptr_to_thread_data->end_point);
 		
 		
@@ -173,7 +225,14 @@ int main(int argc, char* argv[]) {
 		{
 			printf("ERRROR: %d while attempt to create thread\n",	 GetLastError());
 			pass_or_fail = FAIL;
-			goto cleanup;
+			if (!pass_or_fail) {
+				ret_val = close_all_handles(h_input_file, h_output_file, threads_handles, num_threads, lines_per_thread, thread_ids);//closing all the handles
+				if (ret_val == 1) {
+					printf("ERROR:closing one of the handles handles failed!\n");
+					return 1;
+				}
+				return 1;
+			}
 		}
 
 
@@ -189,7 +248,14 @@ int main(int argc, char* argv[]) {
 	if (dw_ret != WAIT_OBJECT_0) {
 		printf("ERROR:%d while waiting to threads to finish\n", GetLastError());
 		pass_or_fail = FAIL;
-		goto cleanup;
+		if (!pass_or_fail) {
+			ret_val = close_all_handles(h_input_file, h_output_file, threads_handles, num_threads, lines_per_thread, thread_ids);//closing all the handles
+			if (ret_val == 1) {
+				printf("ERROR:closing one of the handles handles failed!\n");
+				return 1;
+			}
+			return 1;
+		}
 	}
 	//check exit code of each thread
 	for (int i = 0; i < num_threads; i++) {
@@ -197,18 +263,30 @@ int main(int argc, char* argv[]) {
 		if (ret_val == 0) {
 			printf("Error when getting thread exit code\n");
 			pass_or_fail = FAIL;
-			goto cleanup;
+			if (!pass_or_fail) {
+				ret_val = close_all_handles(h_input_file, h_output_file, threads_handles, num_threads, lines_per_thread, thread_ids);//closing all the handles
+				if (ret_val == 1) {
+					printf("ERROR:closing one of the handles handles failed!\n");
+					return 1;
+				}
+				return 1;
+			}
 		}
-		if (THREAD_FAIL == (int)exit_code) {
+		if ((THREAD_FAIL == (int)exit_code) || (THREAD_SUCCESS != (int)exit_code)) {
 			pass_or_fail = FAIL;
-			goto cleanup;
+			if (!pass_or_fail) {
+				ret_val = close_all_handles(h_input_file, h_output_file, threads_handles, num_threads, lines_per_thread, thread_ids);//closing all the handles
+				if (ret_val == 1) {
+					printf("ERROR:closing one of the handles handles failed!\n");
+					return 1;
+				}
+				return 1;
+			}
+			
 		}
-		if (THREAD_SUCCESS != (int)exit_code){
-			pass_or_fail = FAIL;
-			goto cleanup;
-		}
+		
 	}
-	cleanup:
+	
 	ret_val=close_all_handles(h_input_file, h_output_file, threads_handles, num_threads,lines_per_thread,thread_ids);//closing all the handles
 	if (ret_val == 1) {
 		printf("ERROR:closing one of the handles handles failed!\n");
