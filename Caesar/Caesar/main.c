@@ -17,7 +17,7 @@
 #define FAIL FALSE;
 #define THREAD_SUCCESS ((int)(0))
 #define THREAD_FAIL ((int)(1))
-
+#define MYNULL ((void*)0)
 #define CHECK_IF_ALLOCATION_FAILED(RET_VAL) if (RET_VAL == NULL) {\
 	printf("memory allocation failed\n");\
 	return FAIL;\
@@ -209,14 +209,12 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	cleanup:
-	ret_val=close_all_handles(h_input_file, h_output_file, threads_handles, num_threads);//closing all the handles
+	ret_val=close_all_handles(h_input_file, h_output_file, threads_handles, num_threads,lines_per_thread,thread_ids);//closing all the handles
 	if (ret_val == 1) {
 		printf("ERROR:closing one of the handles handles failed!\n");
 		return 1;
 	}
-	free(lines_per_thread);
-	free(threads_handles);
-	free(thread_ids);
+
 	if (!pass_or_fail) {
 		return 1;
 	}

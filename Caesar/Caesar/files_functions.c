@@ -54,7 +54,7 @@ DWORD set_file_size(HANDLE hfile, DWORD new_size) {
 	return 0;//the function successed
 }
 
-int close_all_handles(HANDLE hInputFile, HANDLE hOutputFile, HANDLE threads_handles[], int num_threads, ThreadData* ptr_to_thread_data,
+int close_all_handles(HANDLE hInputFile, HANDLE hOutputFile, HANDLE threads_handles[], int num_threads,
 	int* lines_per_thread, DWORD* thread_ids) {
 	BOOL ret_val;
 	//close input file handle
