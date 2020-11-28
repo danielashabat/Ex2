@@ -26,8 +26,7 @@ DWORD set_file_size(HANDLE hfile,//handler to the file
 
 /*this function close all the handles that opens in the main
 return 0 if all the handles closed, return 1 otherwise*/
-int close_all_handles(HANDLE hInputFile, HANDLE hOutputFile, HANDLE threads_handles[], int num_threads, 
-	int** lines_per_thread, DWORD * *thread_ids);
+int close_all_handles(HANDLE hInputFile, HANDLE hOutputFile, HANDLE threads_handles[], int num_threads, int* lines_per_thread, DWORD * thread_ids);
 
 //returns the starting point for thread (by bytes)
 void get_start_point(DWORD * start_point);
