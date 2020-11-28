@@ -9,6 +9,7 @@
 #include "ThreadFunction.h"
 #include "files_functions.h"
 
+
 //DEFINE -------------------------------------------------------
 
 #define MYNULL ((void*)0)

@@ -22,6 +22,7 @@ int count_lines(HANDLE hfile) {
 
 	while (!bResult || (dwBytesRead != 0)) {
 		bResult = ReadFile(hfile, &char_buffer, nBytesToRead, &dwBytesRead, NULL);
+
 		if (char_buffer == '\n') {
 			count_lines++;
 		}
@@ -141,22 +142,26 @@ int* divide_lines_per_thread(HANDLE h_input_file, int num_threads) {
 }
 
 
-void check_file_handle(HANDLE h_file, char* file_name) {
-	if (h_file == INVALID_HANDLE_VALUE)
+int check_file_handle(HANDLE h_file, char* file_name) {
+	if (h_file == INVALID_HANDLE_VALUE) {
 
 		printf("Could not open %s file, error %ld\n", file_name, GetLastError());
-
-	else
+		return 1;
+	}
+	else {
 
 		printf("%s file HANDLE is OK!\n", file_name);
+		return 0;
 
+	}
 }
 
-void check_ReadFile_WriteFile(BOOL bErrorFlag, DWORD number_of_bytes_to_read_or_write, DWORD lpNumberOfBytesRead_or_Written) {
+int check_ReadFile_WriteFile(BOOL bErrorFlag, DWORD number_of_bytes_to_read_or_write, DWORD lpNumberOfBytesRead_or_Written) {
 
 	if (FALSE == bErrorFlag)
 	{
 		printf("Terminal failure: Unable to write to file.\n");
+		return 1;
 	}
 	else
 	{
@@ -172,6 +177,7 @@ void check_ReadFile_WriteFile(BOOL bErrorFlag, DWORD number_of_bytes_to_read_or_
 		{
 			printf("Read or Write successfully.\n");
 		}
+		return 0;
 	}
 
 
