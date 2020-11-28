@@ -15,7 +15,8 @@
 /*if allocation failed exit program*/
 #define SUCCSESS TRUE;
 #define FAIL FALSE;
-
+#define THREAD_SUCCESS ((int)(0))
+#define THREAD_FAIL ((int)(1))
 
 #define CHECK_IF_ALLOCATION_FAILED(RET_VAL) if (RET_VAL == NULL) {\
 	printf("memory allocation failed\n");\
@@ -43,6 +44,7 @@ int main(int argc, char* argv[]) {
 	BOOL ret_val;
 	DWORD start_point = 0, end_point = 0;
 	ThreadData* ptr_to_thread_data = NULL;
+	DWORD exit_code;
 
 	//check if there exactly 5 arguments
 	if (argc < 5) {
@@ -189,7 +191,23 @@ int main(int argc, char* argv[]) {
 		pass_or_fail = FAIL;
 		goto cleanup;
 	}
-
+	//check exit code of each thread
+	for (int i = 0; i < num_threads; i++) {
+		ret_val = GetExitCodeThread(*(threads_handles + i), &exit_code);
+		if (ret_val == 0) {
+			printf("Error when getting thread exit code\n");
+			pass_or_fail = FAIL;
+			goto cleanup;
+		}
+		if (THREAD_FAIL == (int)exit_code) {
+			pass_or_fail = FAIL;
+			goto cleanup;
+		}
+		if (THREAD_SUCCESS != (int)exit_code){
+			pass_or_fail = FAIL;
+			goto cleanup;
+		}
+	}
 	cleanup:
 	ret_val=close_all_handles(h_input_file, h_output_file, threads_handles, num_threads);//closing all the handles
 	if (ret_val == 1) {
