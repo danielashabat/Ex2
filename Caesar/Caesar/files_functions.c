@@ -139,3 +139,41 @@ int* divide_lines_per_thread(HANDLE h_input_file, int num_threads) {
 	}
 	return lines_per_thread;
 }
+
+
+void check_file_handle(HANDLE h_file, char* file_name) {
+	if (h_file == INVALID_HANDLE_VALUE)
+
+		printf("Could not open %s file, error %ld\n", file_name, GetLastError());
+
+	else
+
+		printf("%s file HANDLE is OK!\n", file_name);
+
+}
+
+void check_ReadFile_WriteFile(BOOL bErrorFlag, DWORD number_of_bytes_to_read_or_write, DWORD lpNumberOfBytesRead_or_Written) {
+
+	if (FALSE == bErrorFlag)
+	{
+		printf("Terminal failure: Unable to write to file.\n");
+	}
+	else
+	{
+		if (number_of_bytes_to_read_or_write != lpNumberOfBytesRead_or_Written)
+		{
+			// This is an error because a synchronous write that results in
+			// success (WriteFile returns TRUE) should write all data as
+			// requested. This would not necessarily be the case for
+			// asynchronous writes.
+			printf("Error: dwBytesWritten != dwBytesToWrite\n");
+		}
+		else
+		{
+			printf("Read or Write successfully.\n");
+		}
+	}
+
+
+
+}

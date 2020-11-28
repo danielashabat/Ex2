@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
 	int i = 0;
 	char input_path[MAX_PATH];
 	char output_path[MAX_PATH];
-	int* lines_per_thread;
+	int* lines_per_thread=NULL;
 	HANDLE h_input_file=NULL;
 	HANDLE h_output_file=NULL;
 	DWORD dw_ret = 0;
