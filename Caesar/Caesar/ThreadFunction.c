@@ -29,8 +29,8 @@ BOOL CreateThreadData(DWORD start_point,//
 	int key, ThreadData** ptr_to_thread_data)// the key for the decryption/encryption
 
 {
-	*ptr_to_thread_data = NULL;
-	*ptr_to_thread_data = (ThreadData*)malloc(sizeof(ThreadData));
+	
+	(*ptr_to_thread_data )= (ThreadData*)malloc(sizeof(ThreadData));
 	if (*ptr_to_thread_data == NULL) {
 		printf("ERROR: allocation failed!\n");
 		return FAIL;

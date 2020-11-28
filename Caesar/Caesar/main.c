@@ -13,10 +13,15 @@
 // Defines --------------------------------------------------------------------
 
 /*if allocation failed exit program*/
+#define SUCCSESS TRUE;
+#define FAIL FALSE;
+
+
 #define CHECK_IF_ALLOCATION_FAILED(RET_VAL) if (RET_VAL == NULL) {\
 	printf("memory allocation failed\n");\
-	return 1;\
+	return FAIL;\
 }
+
 
 
 
@@ -71,7 +76,8 @@ int main(int argc, char* argv[]) {
 		OPEN_EXISTING,         // existing file only 
 		FILE_ATTRIBUTE_NORMAL, // normal file 
 		NULL);                 // no template 
-	if (h_input_file == INVALID_HANDLE_VALUE)
+	pass_or_fail = check_file_handle(h_input_file,input_path);
+	if (!pass_or_fail)
 		goto cleanup;
 
 	h_output_file = CreateFileA(output_path,// file name 
@@ -81,23 +87,43 @@ int main(int argc, char* argv[]) {
 		CREATE_ALWAYS,         // always creats a new file, if the file exists it overwrites it 
 		FILE_ATTRIBUTE_NORMAL, // normal file 
 		NULL);                 // no template 
-
+	pass_or_fail = check_file_handle(h_output_file, output_path);
+	if (!pass_or_fail)
+		goto cleanup;
 	dw_ret= set_file_size(h_output_file, GetFileSize(h_input_file, NULL));
 	if (dw_ret == 1 ){
+		pass_or_fail = FAIL;
 		printf("ERROR:%d  set_file_size failed\n", GetLastError());
-		return 1;
+		goto cleanup;
 	}
 
 	//lines_per_thread= count_lines(h_input_file) /num_threads;// dividing all the lines in the file with the number of threads 
 
 	threads_handles = (HANDLE*)malloc(sizeof(HANDLE)*num_threads);//creating array of handles in the size of num_threads
-	CHECK_IF_ALLOCATION_FAILED(threads_handles);
+	
+	for (int i = 0; i < num_threads; i++) {//inital array to NULL for close handles
+		threads_handles[i] = NULL;
+	}
+	if (threads_handles == NULL) {//checl if aloocation failed
+		pass_or_fail = FAIL;
+		printf("memory allocation failed\n");
+		goto cleanup;
+	}
 
 	thread_ids = (DWORD*)malloc(num_threads * sizeof(DWORD));// creating array of DWORD in the size of num_threads
-	CHECK_IF_ALLOCATION_FAILED(thread_ids)
+	for (int i = 0; i < num_threads; i++) {//inital array to NULL for close handles
+		thread_ids[i] = NULL;
+	}
+	if (thread_ids == NULL) {//check if aloocation failed
+		pass_or_fail = FAIL;
+		printf("memory allocation failed\n");
+		goto cleanup;
+	}
+
 
 	pass_or_fail = divide_lines_per_thread(h_input_file, num_threads,&lines_per_thread);//initial array with the amount of lines thread in index 'i' need to read
-	CHECK_IF_ALLOCATION_FAILED(lines_per_thread);
+	if (!pass_or_fail)
+		goto cleanup;
 
 
 	for (i = 0; i < num_threads; i++)
@@ -106,18 +132,21 @@ int main(int argc, char* argv[]) {
 		get_start_point(&start_point);
 
 		pass_or_fail = get_end_point(h_input_file,lines_per_thread[i],&end_point);
-
+		if (!pass_or_fail)
+			goto cleanup;
 		
-		ThreadData* data = CreateThreadData(start_point, end_point, input_path, output_path, key);
-		printf( "thread index: %d, lines_per_thread:%d, startpoint: %ld, endpoint:%ld\n",i, lines_per_thread[i], data->start_point, data->end_point);
-		CHECK_IF_ALLOCATION_FAILED(data);
+		pass_or_fail = CreateThreadData(start_point, end_point, input_path, output_path, key,&ptr_to_thread_data);
+		if (!pass_or_fail)
+			goto cleanup;
+		printf( "thread index: %d, lines_per_thread:%d, startpoint: %ld, endpoint:%ld\n",i, lines_per_thread[i], ptr_to_thread_data->start_point, ptr_to_thread_data->end_point);
+		
 		
 		if (enc_or_dec == 'd') {
 			*(threads_handles + i) = CreateThread(/////need to handle with this warning!!
 				NULL,                   // default security attributes
 				0,                    // use default stack size  
 				decrypt_thread,       // thread function name
-				data,          // argument to thread function 
+				ptr_to_thread_data,          // argument to thread function 
 				0,                      // use default creation flags 
 				&thread_ids[i]);   // returns the thread identifie
 		}
@@ -127,7 +156,7 @@ int main(int argc, char* argv[]) {
 				NULL,                   // default security attributes
 				0,                    // use default stack size  
 				encrypt_thread,       // thread function name
-				data,          // argument to thread function 
+				ptr_to_thread_data,          // argument to thread function 
 				0,                      // use default creation flags 
 				&thread_ids[i]);   // returns the thread identifie
 		}
@@ -141,7 +170,8 @@ int main(int argc, char* argv[]) {
 		if (*(threads_handles+i) == NULL)
 		{
 			printf("ERRROR: %d while attempt to create thread\n",	 GetLastError());
-			return 1;
+			pass_or_fail = FAIL;
+			goto cleanup;
 		}
 
 
@@ -156,8 +186,8 @@ int main(int argc, char* argv[]) {
 	// check for failure 
 	if (dw_ret != WAIT_OBJECT_0) {
 		printf("ERROR:%d while waiting to threads to finish\n", GetLastError());
-		return 1;
-	
+		pass_or_fail = FAIL;
+		goto cleanup;
 	}
 
 	cleanup:

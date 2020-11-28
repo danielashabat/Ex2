@@ -7,6 +7,7 @@
 #include <stdlib.h> 
 #include <windows.h>
 #include "files_functions.h"
+#include "ThreadFunction.h"
 
 #define SUCCSESS TRUE;
 #define FAIL FALSE;
@@ -53,13 +54,16 @@ DWORD set_file_size(HANDLE hfile, DWORD new_size) {
 	return 0;//the function successed
 }
 
-int close_all_handles(HANDLE hInputFile, HANDLE hOutputFile, HANDLE threads_handles[], int num_threads) {
+int close_all_handles(HANDLE hInputFile, HANDLE hOutputFile, HANDLE threads_handles[], int num_threads, ThreadData* ptr_to_thread_data,
+	int* lines_per_thread, DWORD* thread_ids) {
 	BOOL ret_val;
 	//Close thread handles
 	for (int i = 0; i < num_threads; i++)
 	{
+
 		ret_val = CloseHandle(*(threads_handles + i));
 		CHECK_IF_CLOSING_HANDLE_FAILED(ret_val);
+
 	}
 
 	//close input file handle

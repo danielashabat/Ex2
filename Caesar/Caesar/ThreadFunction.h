@@ -35,18 +35,14 @@ BOOL write_to_specific_lines(char* file_name_to_write, char* data_to_file, LONG 
 //the purpose of this function is to create data for passsing the necessary arguments to 'ThreadFunction'
 //it returns pointer to ThreadData that contains the relevant data per thread by it's index thread.
 //if the function fails it returns NULL
-BOOL CreateThreadData(int start_point,////the statring point (by bytes) the thread need to decrypte/encrypte
-	int end_point,//the ending point (by bytes) the thread need to decrypte/encrypte (include this bytes)
-	char input_path[],//input file path
-	char output_path[], //output file path
-	int key);// the key for the decryption/encryption
+
 
 BOOL CreateThreadData(DWORD start_point,////the statring point (by bytes) the thread need to decrypte/encrypte
 	DWORD end_point,//the ending point (by bytes) the thread need to decrypte/encrypte (include this bytes)
 	char input_path[],//input file path
 	char output_path[], //output file path
 	int key,// the key for the decryption/encryption
-	ThreadData** ptr_to_thread_data)// the key for the decryption/encryption
+	ThreadData** ptr_to_thread_data);// the key for the decryption/encryption
 #endif
 #pragma once
 
