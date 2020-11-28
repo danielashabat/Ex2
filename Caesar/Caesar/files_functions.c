@@ -57,22 +57,35 @@ DWORD set_file_size(HANDLE hfile, DWORD new_size) {
 int close_all_handles(HANDLE hInputFile, HANDLE hOutputFile, HANDLE threads_handles[], int num_threads, ThreadData* ptr_to_thread_data,
 	int* lines_per_thread, DWORD* thread_ids) {
 	BOOL ret_val;
+	//close input file handle
+	if (hInputFile != NULL) {
+		ret_val = CloseHandle(hInputFile);
+		CHECK_IF_CLOSING_HANDLE_FAILED(ret_val);
+	}
+	//close output file handle
+	if (hOutputFile != NULL) {
+		ret_val = CloseHandle(hOutputFile);
+		CHECK_IF_CLOSING_HANDLE_FAILED(ret_val);
+	}
 	//Close thread handles
 	for (int i = 0; i < num_threads; i++)
 	{
-
-		ret_val = CloseHandle(*(threads_handles + i));
-		CHECK_IF_CLOSING_HANDLE_FAILED(ret_val);
-
+		if (*(threads_handles + i) != NULL){
+			ret_val = CloseHandle(*(threads_handles + i));
+			CHECK_IF_CLOSING_HANDLE_FAILED(ret_val);
+		}
+	}
+	if (lines_per_thread != NULL) {
+		free(lines_per_thread);
+	}
+	if (threads_handles != NULL) {
+		free(threads_handles);
+	}
+	if (thread_ids != NULL) {
+		free(thread_ids);
 	}
 
-	//close input file handle
-	ret_val = CloseHandle(hInputFile);
-	CHECK_IF_CLOSING_HANDLE_FAILED(ret_val);
-
-	//close output file handle
-	ret_val = CloseHandle(hOutputFile);
-	CHECK_IF_CLOSING_HANDLE_FAILED(ret_val);
+	
 	return 0;//returns 0 if all the handles closed
 }
 

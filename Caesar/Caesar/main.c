@@ -199,6 +199,9 @@ int main(int argc, char* argv[]) {
 	free(lines_per_thread);
 	free(threads_handles);
 	free(thread_ids);
+	if (!pass_or_fail) {
+		return 1;
+	}
 	return 0;
 }
 
