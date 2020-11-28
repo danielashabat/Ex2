@@ -23,16 +23,15 @@ BOOL count_lines(HANDLE hfile,int* count_lines) {
 
 	while (!bResult || (dwBytesRead != 0)) {
 		bResult = ReadFile(hfile, &char_buffer, nBytesToRead, &dwBytesRead, NULL);
-		retVal = check_ReadFile_WriteFile(bResult,nBytesToRead,dwBytesRead);
-		if (retVal == FALSE) {
-			return FALSE;
+		if (bResult == FALSE) {
+			return FAIL;
 		}
 		if (char_buffer == '\n') {
 			*count_lines++;
 		}
 	}
 	*count_lines++;
-	return TRUE;
+	return SUCCSESS;
 }
 
 
@@ -81,7 +80,7 @@ void get_start_point(int* start_point) {
 
 
 
-DWORD get_end_point(HANDLE hfile, int lines_per_thread) {
+DWORD get_end_point(HANDLE hfile, int lines_per_thread,int* end_point) {
 	char char_buffer;
 	DWORD nBytesToRead = 1;
 	DWORD dwBytesRead = 0;
@@ -89,7 +88,7 @@ DWORD get_end_point(HANDLE hfile, int lines_per_thread) {
 	int count_lines = 0;
 
 	if (lines_per_thread == 0) {//if no lines need to be read, return -1.
-		return -1;
+		*end_point = -1;
 	}
 	if (file_pointer == 0) {
 		//  move  file pointer to the begining  
@@ -97,12 +96,15 @@ DWORD get_end_point(HANDLE hfile, int lines_per_thread) {
 
 		if (dwPtr == INVALID_SET_FILE_POINTER) // Test for failure
 		{
-			return INVALID_SET_FILE_POINTER;
+			return FAIL;
 		} // End of error handler 
 	}
 
 	while  (count_lines < lines_per_thread) {//looping until it's end-of-file or it read all the lines needed
 		bResult = ReadFile(hfile, &char_buffer, nBytesToRead, &dwBytesRead, NULL);
+		if (bResult == FALSE) {
+			return FAIL;
+		}
 		if (bResult && dwBytesRead == 0)//check if EOF
 			break;
 		file_pointer++;
@@ -111,8 +113,8 @@ DWORD get_end_point(HANDLE hfile, int lines_per_thread) {
 			count_lines++;
 		}
 	}
-	 
-	return (file_pointer -1);//end loop with extra byte
+	*end_point = (file_pointer - 1);
+	return SUCCSESS;//end loop with extra byte
 
 }
 

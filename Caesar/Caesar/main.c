@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
 
 		get_start_point(&start_point);
 
-		end_point = get_end_point(h_input_file,lines_per_thread[i]);
+		pass_or_fail = get_end_point(h_input_file,lines_per_thread[i],&end_point);
 
 
 		ThreadData* data = CreateThreadData(start_point, end_point, input_path, output_path, key);
