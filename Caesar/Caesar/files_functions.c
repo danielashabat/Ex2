@@ -74,8 +74,8 @@ int close_all_handles(HANDLE hInputFile, HANDLE hOutputFile, HANDLE threads_hand
 }
 
 
-DWORD get_start_point() {
-	return file_pointer;
+void get_start_point(int* start_point) {
+	*start_point = file_pointer;
 }
 
 

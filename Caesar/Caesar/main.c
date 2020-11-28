@@ -103,7 +103,7 @@ int main(int argc, char* argv[]) {
 	for (i = 0; i < num_threads; i++)
 	{
 
-		start_point = get_start_point();
+		get_start_point(&start_point);
 
 		end_point = get_end_point(h_input_file,lines_per_thread[i]);
 
