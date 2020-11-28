@@ -27,10 +27,10 @@ BOOL count_lines(HANDLE hfile,int* count_lines) {
 			return FAIL;
 		}
 		if (char_buffer == '\n') {
-			*count_lines++;
+			(*count_lines)++;
 		}
 	}
-	*count_lines++;
+	(*count_lines)++;
 	return SUCCSESS;
 }
 
@@ -89,6 +89,7 @@ BOOL get_end_point(HANDLE hfile, int lines_per_thread,DWORD* end_point) {
 
 	if (lines_per_thread == 0) {//if no lines need to be read, return -1.
 		*end_point = -1;
+		return SUCCSESS;
 	}
 	if (file_pointer == 0) {
 		//  move  file pointer to the begining  
@@ -132,12 +133,12 @@ BOOL divide_lines_per_thread(HANDLE h_input_file, int num_threads, int** lines_p
 		return FAIL;
 	}
 	while (i < num_threads) {//initial size for every thread to 0.
-		*lines_per_thread[i] = 0;
+		(*lines_per_thread)[i] = 0;
 		i++;
 	}
 	i = 0;
 	while (i < total_lines_in_file) {//dividing all lines equally +-1 to threads
-		*lines_per_thread[i % (num_threads)]++;
+		(*lines_per_thread)[i % (num_threads)]++;
 		
 		i++;
 	}
@@ -145,14 +146,14 @@ BOOL divide_lines_per_thread(HANDLE h_input_file, int num_threads, int** lines_p
 	printf("there is total %d threads in program and %d total lines, total size of file(bytes):%ld\n", num_threads, total_lines_in_file, GetFileSize(h_input_file, NULL));
 	i = 0;
 	while (i < num_threads) {
-	printf("thread %d lines_per_thread:%d\n", i, *lines_per_thread[i % (num_threads)]);
+	printf("thread %d lines_per_thread:%d\n", i, (*lines_per_thread)[i % (num_threads)]);
 	i++;
 	}
 	return SUCCSESS;
 }
 
 
-int check_file_handle(HANDLE h_file, char* file_name) {
+BOOL check_file_handle(HANDLE h_file, char* file_name) {
 	if (h_file == INVALID_HANDLE_VALUE) {
 
 		printf("Could not open %s file, error %ld\n", file_name, GetLastError());

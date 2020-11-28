@@ -2,7 +2,8 @@
 #define FIELS_FUNCTIONS_H
 
 // Defines --------------------------------------------------------------------
-
+#define SUCCSESS TRUE;
+#define FAIL FALSE;
 
 /*if closing handler failed exit program*/
 #define CHECK_IF_CLOSING_HANDLE_FAILED(RET_VAL) if (false == RET_VAL) {\
@@ -38,7 +39,8 @@ BOOL get_end_point(HANDLE hfile, //handler to input file
 
 
 BOOL divide_lines_per_thread(h_input_file, num_threads);
-
+BOOL check_ReadFile_WriteFile(BOOL bErrorFlag, DWORD number_of_bytes_to_read_or_write, DWORD lpNumberOfBytesRead_or_Written);
+BOOL check_file_handle(HANDLE h_file, char* file_name);
 
 // static vars Declarations -------------------------------------------------------
 static DWORD file_pointer = 0;
