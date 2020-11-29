@@ -146,9 +146,9 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 	
-		for (int i = 0; i < num_threads; i++) {//inital array to NULL for close handles
-			threads_handles[i] = NULL;
-		}
+	for (int i = 0; i < num_threads; i++) {//inital array to NULL for close handles
+		threads_handles[i] = NULL;
+	}
 	
 	thread_ids = (DWORD*)malloc(num_threads * sizeof(DWORD));// creating array of DWORD in the size of num_threads
 	
