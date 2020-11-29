@@ -1,4 +1,6 @@
-
+/*Authors -Daniela Shabat 316415645, Anat Sinai 312578149.
+Project – Caesar (exersice 2 in System Operation course)
+Description – in this project the program encrypt/decrypt a file using threads and API functions */
 
 // Includes --------------------------------------------------------------------
 
@@ -59,6 +61,11 @@ int main(int argc, char* argv[]) {
 
 	int key = atoi(argv[2]);
 	int num_threads = atoi(argv[3]);
+	if (num_threads <= 0) {//checking that num threads is positive number
+		printf("ERROR: number of threads is not valid!");
+		return 1;
+	}
+
 	char enc_or_dec = argv[4][1];
 
 	strcpy_s(input_path, MAX_PATH, argv[1]);
@@ -69,6 +76,10 @@ int main(int argc, char* argv[]) {
 		break;
 	case 'e':
 		strcpy_s(output_path, MAX_PATH, "encrypted.txt");
+		break;
+	default:
+		printf("ERROR: the flag is not valid!");
+		return 1;
 	}
 
 	h_input_file = CreateFileA(input_path,// file name 
