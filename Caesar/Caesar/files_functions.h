@@ -39,6 +39,8 @@ BOOL get_end_point(HANDLE hfile, //handler to input file
 
 
 BOOL divide_lines_per_thread(h_input_file, num_threads);
+
+//checking if reading or writing is pass
 BOOL check_ReadFile_WriteFile(BOOL bErrorFlag, DWORD number_of_bytes_to_read_or_write, DWORD lpNumberOfBytesRead_or_Written);
 BOOL check_file_handle(HANDLE h_file, char* file_name);
 

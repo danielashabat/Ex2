@@ -7,7 +7,7 @@
 #include <stdlib.h> 
 #include <windows.h>
 #include "files_functions.h"
-#include "ThreadFunction.h"///////change to header!!
+#include "ThreadFunction.h"
 
 
 // Defines --------------------------------------------------------------------
@@ -272,7 +272,7 @@ int main(int argc, char* argv[]) {
 				return 1;
 			}
 		}
-		if ((THREAD_FAIL == (int)exit_code) || (THREAD_SUCCESS != (int)exit_code)) {
+		if (THREAD_SUCCESS != (int)exit_code) {
 			pass_or_fail = FAIL;
 			if (!pass_or_fail) {
 				ret_val = close_all_handles(h_input_file, h_output_file, threads_handles, num_threads, lines_per_thread, thread_ids);//closing all the handles
