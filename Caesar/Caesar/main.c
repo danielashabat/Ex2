@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
 	int key = atoi(argv[2]);
 	int num_threads = atoi(argv[3]);
 	char enc_or_dec = argv[4][1];
-
+	
 	strcpy_s(input_path, MAX_PATH, argv[1]);
 
 	switch (enc_or_dec) {
@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
 		strcpy_s(output_path, MAX_PATH, "encrypted.txt");
 	}
 
-	h_input_file = CreateFileA(input_path,// file name 
+	h_input_file = CreateFileA((LPCSTR)input_path,// file name 
 		GENERIC_READ,          // open for reading 
 		FILE_SHARE_READ,       // open sharing for reading only 
 		NULL,                  // default security 
@@ -90,7 +90,7 @@ int main(int argc, char* argv[]) {
 			return 1;
 		}
 	}
-	h_output_file = CreateFileA(output_path,// file name 
+	h_output_file = CreateFileA((LPCSTR)output_path,// file name 
 		GENERIC_WRITE,          // open for reading 
 		FILE_SHARE_WRITE,      // open sharing for writing only 
 		NULL,                  // default security 
@@ -124,9 +124,6 @@ int main(int argc, char* argv[]) {
 
 	threads_handles = (HANDLE*)malloc(sizeof(HANDLE)*num_threads);//creating array of handles in the size of num_threads
 	
-	for (int i = 0; i < num_threads; i++) {//inital array to NULL for close handles
-		threads_handles[i] = NULL;
-	}
 	if (threads_handles == NULL) {//checl if aloocation failed
 		pass_or_fail = FAIL;
 		printf("memory allocation failed\n");
@@ -137,11 +134,13 @@ int main(int argc, char* argv[]) {
 		}
 		return 1;
 	}
-
+	
+		for (int i = 0; i < num_threads; i++) {//inital array to NULL for close handles
+			threads_handles[i] = NULL;
+		}
+	
 	thread_ids = (DWORD*)malloc(num_threads * sizeof(DWORD));// creating array of DWORD in the size of num_threads
-	for (int i = 0; i < num_threads; i++) {//inital array to NULL for close handles
-		thread_ids[i] = NULL;
-	}
+	
 	if (thread_ids == NULL) {//check if aloocation failed
 		pass_or_fail = FAIL;
 		printf("memory allocation failed\n");
@@ -153,7 +152,9 @@ int main(int argc, char* argv[]) {
 		return 1;
 
 	}
-
+	for (int i = 0; i < num_threads; i++) {//inital array to NULL for close handles
+		thread_ids[i] = NULL;
+	}
 
 	pass_or_fail = divide_lines_per_thread(h_input_file, num_threads,&lines_per_thread);//initial array with the amount of lines thread in index 'i' need to read
 	if (!pass_or_fail) {

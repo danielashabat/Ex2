@@ -145,6 +145,9 @@ BOOL divide_lines_per_thread(HANDLE h_input_file, int num_threads, int** lines_p
 	}
 	int i = 0;
 
+	if (num_threads == 0) {
+		return FAIL;
+	}
 	*lines_per_thread=(int*)malloc(num_threads * sizeof(int));// creating array of int in the size of num_threads
 	if (*lines_per_thread == NULL) {
 		return FAIL;
