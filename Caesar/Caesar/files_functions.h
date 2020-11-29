@@ -10,7 +10,8 @@
 	printf("Error when closing handle\n");\
 	return 1;\
 }
-
+// static vars Declarations -------------------------------------------------------
+static DWORD file_pointer = 0; //this variabele holds the pointer in the input file (in the main thread)
 
 // Function Declarations -------------------------------------------------------
 
@@ -49,8 +50,7 @@ BOOL divide_lines_per_thread(HANDLE h_input_file,//the file where the lines need
 BOOL check_ReadFile_WriteFile(BOOL bErrorFlag, DWORD number_of_bytes_to_read_or_write, DWORD lpNumberOfBytesRead_or_Written);
 BOOL check_file_handle(HANDLE h_file, char* file_name);
 
-// static vars Declarations -------------------------------------------------------
-static DWORD file_pointer = 0; //this variabele holds the pointer in the input file (in the main thread)
+
 
 #endif
 #pragma once
