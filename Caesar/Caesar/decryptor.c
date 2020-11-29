@@ -18,13 +18,19 @@ int is_char_digit(char letter) {
 char char_decryptor(char letter, int key) {
 	
 	if (is_lower_case(letter)) {
-		return ('a' + (letter - 'a' - key + 26) % 26);
+		char mod = (letter - 'a' - key + 26) % 26;
+		if (mod < 0) mod = mod + 26;
+		return ('a' + mod);
 	}
 	else if (is_capital_letter(letter)) {
-		return ('A' + (letter - 'A' - key + 26) % 26);
+		char mod = (letter - 'A' - key) % 26;
+		if (mod < 0) mod = mod + 26;
+		return ('A' + mod);
 	}
 	else if (is_char_digit(letter)) {
-		return ('0' + (letter - '0' - key +10) % 10);
+		char mod = (letter - '0' - key) % 10;
+		if (mod < 0) mod = mod + 10;
+		return ('0' + mod);
 	}
 	else {
 		return letter;
@@ -43,13 +49,19 @@ void string_decryptor(char* str, int key, int num_to_count) {
 char char_encryptor(char letter, int key) {
 
 	if (is_lower_case(letter)) {
-		return ('a' + (letter - 'a' + key + 26) % 26);
+		char mod = (letter - 'a' + key) % 26;
+			if (mod < 0) mod = mod + 26;
+		return ('a' + mod);
 	}
 	else if (is_capital_letter(letter)) {
-		return ('A' + (letter - 'A' + key + 26) % 26);
+		char mod = (letter - 'A' + key) % 26;
+		if (mod < 0) mod = mod + 26;
+		return ('A' + mod );
 	}
 	else if (is_char_digit(letter)) {
-		return ('0' + (letter - '0' + key + 10) % 10);
+		char mod = (letter - '0' + key) % 10;
+		if (mod < 0) mod = mod + 10;
+		return ('0' + mod);
 	}
 	else {
 		return letter;

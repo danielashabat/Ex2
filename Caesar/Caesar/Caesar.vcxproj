@@ -123,7 +123,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="daniela.c" />
     <ClCompile Include="decryptor.c" />
     <ClCompile Include="files_functions.c" />
     <ClCompile Include="main.c" />

@@ -192,8 +192,6 @@ int main(int argc, char* argv[]) {
 			return 1;
 			
 		}
-		printf( "thread index: %d, lines_per_thread:%d, startpoint: %ld, endpoint:%ld\n",i, lines_per_thread[i], ptr_to_thread_data->start_point, ptr_to_thread_data->end_point);
-		
 		
 		if (enc_or_dec == 'd') {
 			*(threads_handles + i) = CreateThread(/////need to handle with this warning!!

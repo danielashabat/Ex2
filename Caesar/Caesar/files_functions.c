@@ -163,7 +163,7 @@ BOOL divide_lines_per_thread(HANDLE h_input_file, int num_threads, int** lines_p
 	printf("there is total %d threads in program and %d total lines, total size of file(bytes):%ld\n", num_threads, total_lines_in_file, GetFileSize(h_input_file, NULL));
 	i = 0;
 	while (i < num_threads) {
-	printf("thread %d lines_per_thread:%d\n", i, (*lines_per_thread)[i % (num_threads)]);
+	printf("thread %d need to read %d lines\n", i, (*lines_per_thread)[i % (num_threads)]);
 	i++;
 	}
 	return SUCCSESS;
